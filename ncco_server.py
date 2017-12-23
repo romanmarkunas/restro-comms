@@ -9,7 +9,7 @@ class NCCOServer():
         self.conversation = str(uuid.uuid4())
         self.domain = domain
 
-    def start_call():
+    def start_call(self):
         return [
             {
                 "action" : "talk",
@@ -23,3 +23,6 @@ class NCCOServer():
                 "musicOnHoldUrl" : [ self.domain + "/hold-tune" ]
             }
         ]
+
+    def hold_music(self):
+        return open('static/bensound-thejazzpiano.mp3', mode='rb')
