@@ -39,13 +39,13 @@ class NCCOServer():
             }
         ]
 
-    def ivr(self):
-        return [{
-                "action" : "conversation",
-                "name" : self.conversation,
-                "startOnEnter" : "true",
-                "endOnExit" : "true"
-        }]
+    # def ivr(self):
+    #     return [{
+    #             "action" : "conversation",
+    #             "name" : self.conversation,
+    #             "startOnEnter" : "true",
+    #             "endOnExit" : "true"
+    #     }]
 
     def stt_websocket(self):
         return [{
@@ -63,5 +63,5 @@ ncco_server = NCCOServer("booktwotables.heroku.com")
 router = hug.route.API(__name__)
 router.get('/ncco')(ncco_server.start_call)
 router.get('/hold-tune', output = hug.output_format.file)(ncco_server.hold_music)
-router.get('/ivr')(ncco_server.ivr)
+# router.get('/ivr')(ncco_server.ivr)
 router.get('/websocket')(ncco_server.stt_websocket)
