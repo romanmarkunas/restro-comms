@@ -43,7 +43,7 @@ class NCCOServer():
         return [{
                 "action" : "conversation",
                 "name" : self.conversation,
-                "startOnEnter" : "true"
+                "startOnEnter" : "true",
                 "endOnExit" : "true"
         }]
 
