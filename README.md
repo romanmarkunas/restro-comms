@@ -1,5 +1,8 @@
 # restro-comms
 
+Nexmo log:
+n) create app via cli: nexmo app:create; nexmo app:link. Can also be done from dashboard
+
 Dev log:
 1) Build NCCO object server on host/ncco
 
