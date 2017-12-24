@@ -1,5 +1,6 @@
 # jwt key
 private.key
+aws.key
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

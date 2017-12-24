@@ -15,12 +15,27 @@ class NCCOServer():
                 "action" : "talk",
                 "text" : "Thanks for calling book two tables! Please hold on"
             },
+            # {
+            #     "action" : "conversation",
+            #     "name" : self.conversation,
+            #     "startOnEnter" : "false",
+            #     # Music: https://www.bensound.com
+            #     "musicOnHoldUrl" : [ self.domain + "/hold-tune" ]
+            # }
             {
-                "action" : "conversation",
-                "name" : self.conversation,
-                "startOnEnter" : "false",
-                # Music: https://www.bensound.com
-                "musicOnHoldUrl" : [ self.domain + "/hold-tune" ]
+                "action": "connect",
+                "endpoint": [
+                    {
+                        "content-type": "audio/l16;rate=16000",
+                        "headers": {
+                            "aws_key": "AKIAJQ3CX2DGX64WONXQ",
+                            "aws_secret": "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"
+                        },
+                        "type": "websocket",
+                        "uri": "wss://lex-us-east-1.nexmo.com/bot/BookTwoTables/alias/BookBot_no_cancel/user/BookTwoTables/content"
+                    }
+                ],
+                "eventUrl": [ self.domain + "/event"]
             }
         ]
 
@@ -37,6 +52,8 @@ class NCCOServer():
                 "action" : "conversation",
                 "name" : self.conversation,
                 "startOnEnter" : "false"
+                # actually web socket is avr
+                # add hook after socket joined to do IVR
         }]
 
     def hold_music(self):
