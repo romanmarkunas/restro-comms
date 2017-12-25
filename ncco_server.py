@@ -60,7 +60,7 @@ class NCCOServer():
         return open('static/bensound-thejazzpiano.mp3', mode='rb')
 
     def event_handler(self, request=None, body=None):
-        print("received event! : " + body)
+        print("received event! : " + str(body) + str(request))
 
 ncco_server = NCCOServer("booktwotables.heroku.com")
 router = hug.route.API(__name__)
