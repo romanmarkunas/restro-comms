@@ -29,6 +29,9 @@ class BookingService():
     def get_tables(self):
         return self.tables.get_tables()
 
+    def clear_bookings(self):
+        self.__init__()
+
     def __generate_alternatives(self, slot, booking):
         current_pax = booking.pax
         alternatives = []
