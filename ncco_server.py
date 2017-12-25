@@ -59,9 +59,13 @@ class NCCOServer():
     def hold_music(self):
         return open('static/bensound-thejazzpiano.mp3', mode='rb')
 
+    def event_handler(self, request=None):
+        print("received event! : " + request)
+
 ncco_server = NCCOServer("booktwotables.heroku.com")
 router = hug.route.API(__name__)
 router.get('/ncco')(ncco_server.start_call)
 router.get('/hold-tune', output = hug.output_format.file)(ncco_server.hold_music)
 # router.get('/ivr')(ncco_server.ivr)
 router.get('/websocket')(ncco_server.stt_websocket)
+router.post('/event')(ncco_server.event_handler)
