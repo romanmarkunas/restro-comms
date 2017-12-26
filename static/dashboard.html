@@ -8,26 +8,43 @@
 
 <body onload="updateTable();">
   <h3>Table reservation chart</h3>
-  <table id="reservation-chart"></table>
+  <table id="reservation-chart" border="1"></table>
 
   <script>
     function updateTable() {
-      var table = document.getDocumentById("reservation-chart")
-      while (table.firstChild) table.removeChild(table.firstChild);
+      var table = document.getElementById("reservation-chart");
+      while (table.firstChild) {
+        table.removeChild(table.firstChild);
+      }
 
-      for (var i = 0; i < 2; i++) {
+      for (var i = 0; i < 10; i++) {
         var row = document.createElement("tr");
 
-        for (var j = 0; j < 1; j++) {
+        row.appendChild(createTimeLabel(i));
+
+        for (var j = 0; j < 2; j++) {
           var col = document.createElement("td");
-          var table = document.createTextNode(
-            "Table [" + i + ":" + j + "] - ID: , LVN: , PAX: ");
-          cell.appendChild(cellText);
+          addText(col, "Table [" + i + ":" + j + "]");
+          addText(col, "ID: ");
+          addText(col, "PAX: ");
+          addText(col, "LVN: ");
           row.appendChild(col);
         }
 
         table.appendChild(row);
       }
+    }
+
+    function addText(el, text) {
+      el.appendChild(document.createTextNode(text));
+      el.appendChild(document.createElement("br"));
+    }
+
+    function createTimeLabel(slot) {
+      var hour = 12 + slot;
+      var td = document.createElement("td");
+      addText(td, hour + ":00 - " + (hour + 1) + ":00");
+      return td;
     }
   </script>
 </body>
