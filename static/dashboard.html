@@ -3,15 +3,27 @@
 
 <head>
   <title>BookTwoTables.io - Admin dashboard</title>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8"/>
 </head>
 
-<body onload="updateTable();">
+<body>
   <h3>Table reservation chart</h3>
   <table id="reservation-chart" border="1"></table>
 
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
   <script>
     function updateTable() {
+      $.ajax({
+        url: window.location.hostname + "/tables",
+        dataType: "json",
+        success: function(json) {
+          doUpdateTable(json);
+        }
+      })
+    }
+
+    function doUpdateTable(json) {
+      console.log(json);
       var table = document.getElementById("reservation-chart");
       while (table.firstChild) {
         table.removeChild(table.firstChild);
@@ -46,6 +58,11 @@
       addText(td, hour + ":00 - " + (hour + 1) + ":00");
       return td;
     }
+
+    doUpdateTable("starting...");
+    setInterval(function(){
+      updateTable();
+    }, 2000)
   </script>
 </body>
 
