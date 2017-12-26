@@ -62,6 +62,11 @@ class NCCOServer():
     def event_handler(self, request=None, body=None):
         print("received event! : " + str(body) + str(request))
 
+    @hug.get("/dashboard", output = hug.output_format.html)
+    def dashboard(self):
+        with open("static/dashboard.html") as page:
+            return page.read()
+
 ncco_server = NCCOServer("booktwotables.heroku.com")
 router = hug.route.API(__name__)
 router.get('/ncco')(ncco_server.start_call)
