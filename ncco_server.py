@@ -2,12 +2,14 @@
 
 import hug
 import uuid
+from booking_service import BookingService
 
 class NCCOServer():
 
     def __init__(self, domain):
         self.conversation = str(uuid.uuid4())
         self.domain = domain
+        self.booking_service = BookingService()
 
     def start_call(self):
         return [
@@ -67,6 +69,10 @@ class NCCOServer():
     def dashboard(**kwargs):
         with open("static/dashboard.html") as page:
             return page.read()
+
+    @hug.get("/tables")
+    def tables(**kwargs):
+        return self.booking_service.get_tables()
 
 ncco_server = NCCOServer("booktwotables.heroku.com")
 router = hug.route.API(__name__)
