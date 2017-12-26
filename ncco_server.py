@@ -61,6 +61,9 @@ class NCCOServer():
     def event_handler(self, request=None, body=None):
         print("received event! : " + str(body) + str(request))
 
+    def tables(self):
+        return self.booking_service.get_tables()
+
     @hug.get("/hold-tune", output = hug.output_format.file)
     def hold_music(**kwargs):
         return open('static/bensound-thejazzpiano.mp3', mode='rb')
@@ -70,13 +73,10 @@ class NCCOServer():
         with open("static/dashboard.html") as page:
             return page.read()
 
-    @hug.get("/tables")
-    def tables(self):
-        return self.booking_service.get_tables()
-
 ncco_server = NCCOServer("booktwotables.heroku.com")
 router = hug.route.API(__name__)
 router.get('/ncco')(ncco_server.start_call)
 # router.get('/ivr')(ncco_server.ivr)
 router.get('/websocket')(ncco_server.stt_websocket)
 router.post('/event')(ncco_server.event_handler)
+router.get('/tables')(ncco_server.tables)
