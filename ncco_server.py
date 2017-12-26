@@ -71,7 +71,7 @@ class NCCOServer():
             return page.read()
 
     @hug.get("/tables")
-    def tables(**kwargs):
+    def tables(self):
         return self.booking_service.get_tables()
 
 ncco_server = NCCOServer("booktwotables.heroku.com")
