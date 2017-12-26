@@ -56,11 +56,12 @@ class NCCOServer():
                 # add hook after socket joined to do IVR
         }]
 
-    def hold_music(self):
-        return open('static/bensound-thejazzpiano.mp3', mode='rb')
-
     def event_handler(self, request=None, body=None):
         print("received event! : " + str(body) + str(request))
+
+    @hug.get("/hold-tune", output = hug.output_format.file)
+    def hold_music(**kwargs):
+        return open('static/bensound-thejazzpiano.mp3', mode='rb')
 
     @hug.get("/dashboard", output = hug.output_format.html)
     def dashboard(**kwargs):
@@ -70,7 +71,6 @@ class NCCOServer():
 ncco_server = NCCOServer("booktwotables.heroku.com")
 router = hug.route.API(__name__)
 router.get('/ncco')(ncco_server.start_call)
-router.get('/hold-tune', output = hug.output_format.file)(ncco_server.hold_music)
 # router.get('/ivr')(ncco_server.ivr)
 router.get('/websocket')(ncco_server.stt_websocket)
 router.post('/event')(ncco_server.event_handler)
