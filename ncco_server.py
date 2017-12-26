@@ -63,7 +63,7 @@ class NCCOServer():
         print("received event! : " + str(body) + str(request))
 
     @hug.get("/dashboard", output = hug.output_format.html)
-    def dashboard(self):
+    def dashboard(**kwargs):
         with open("static/dashboard.html") as page:
             return page.read()
 
