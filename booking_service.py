@@ -27,7 +27,13 @@ class BookingService():
             return False
 
     def get_tables(self):
-        return self.tables.get_tables()
+        tables_dict = []
+        table_status = self.tables.get_tables()
+        for i in range(0, Tables.SLOTS):
+            table1booking = self.__booking_to_dict(table_status[0][i])
+            table2booking = self.__booking_to_dict(table_status[1][i])
+            tables_dict.append([table1booking, table2booking])
+        return tables_dict
 
     def clear_bookings(self):
         self.__init__()
@@ -60,3 +66,13 @@ class BookingService():
         del dst[:]
         for item in src:
             dst.append(item)
+
+    def __booking_to_dict(self, booking):
+        if booking == None:
+            return {}
+        else:
+            return {
+                "id" : booking.id,
+                "pax" : booking.pax,
+                "lvn" : booking.customer_number
+            }

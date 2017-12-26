@@ -20,10 +20,11 @@ class Tables():
     PAX_PER_TABLE = 2
     NO_TABLES = 2
     MAX_PAX = PAX_PER_TABLE * NO_TABLES
+    SLOTS = 10
 
     def __init__(self):
-        self.table1 = 10*[None]
-        self.table2 = 10*[None]
+        self.table1 = Tables.SLOTS*[None]
+        self.table2 = Tables.SLOTS*[None]
 
     def check_available(self, slot, booking):
         if (booking.pax > Tables.MAX_PAX):
