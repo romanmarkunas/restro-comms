@@ -13,17 +13,9 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
   <script>
     function updateTable() {
-      $.ajax({
-        url: window.location.hostname + "/tables",
-        dataType: "json",
-        success: function(json) {
+      $.getJSON("../tables", function(json) {
           doUpdateTable(json);
-        },
-        error: function (xhr, ajaxOptions, thrownError) {
-          console.log(xhr.status);
-          console.log(thrownError);
-        }
-      })
+        })
     }
 
     function doUpdateTable(json) {
