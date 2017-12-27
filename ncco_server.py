@@ -79,6 +79,8 @@ class NCCOServer():
             "Authorization": "Bearer " + self.jwt
         })
 
+        print(self.domain + "/remind")
+
     def remind_call_ncco(self):
         return [
             {
@@ -102,7 +104,7 @@ class NCCOServer():
         with open("static/dashboard.html") as page:
             return page.read()
 
-ncco_server = NCCOServer("booktwotables.heroku.com")
+ncco_server = NCCOServer("booktwotables.herokuapp.com")
 router = hug.route.API(__name__)
 router.get('/ncco')(ncco_server.start_call)
 # router.get('/ivr')(ncco_server.ivr)
