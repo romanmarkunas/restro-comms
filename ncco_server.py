@@ -14,7 +14,7 @@ class NCCOServer():
         self.jwt = self.get_jwt()
 
     def get_jwt(application_id="none", keyfile="jwt.txt") :
-        return "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE1MTQ0MTQ5MzYsImp0aSI6IjFmMThhZTEwLWViNTgtMTFlNy04ZjgwLTA3ZmFlYmQwNmU0YiIsImFwcGxpY2F0aW9uX2lkIjoiYjc1ZjU4YmEtZjhlZS00N2ZiLWIwZDAtYTQ3YWIyMzE0M2MwIn0.QfIRSLvyocSINUce-MAsmQnbFIvFFzhvauF6KjW6f0o43DvSKmNYF7gaTvxnsELfl9lJk3fTBfpUUky9V_NnE7nEhRTa59NOSFE6YrPUxXzw_HXniROufAotEa6mjsyj0TXLPSVHl83DNO8pr7DTy-2ScyP7KrYq6tHCAv1xKvS5xEbc9Xe7_k04cK-AmUQVlMuPa9gDl7L27K2BIY0NxTtfNHgo1gjIdymFyh-LulNRMwwnlynMn9IPBBM86PN1XL4q8N2m698AUAWJjBRXb5n4QN6FrxSN4Sb-OFDbdQl7FfahLczaxXdgOvGyV9NZZM3n8B6jVi3LuCFn5Of9fw"
+        return "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE1MTQ0MTY2MTUsImp0aSI6IjA3ZGUwOTgwLWViNWMtMTFlNy1hZGM4LWI1NDYyYzJmZGQ3MiIsImFwcGxpY2F0aW9uX2lkIjoiYjc1ZjU4YmEtZjhlZS00N2ZiLWIwZDAtYTQ3YWIyMzE0M2MwIn0.l2kGG1j7jybCWquQirJi4I_EF4Ys6cag6Zi_N7DltkB0f9zv3KakMGIw_T7bmT0hvTa_lkmeHlnPglgJP-c1plY6JoinoQC8pdWz5oEynJkZXqZNLtQkAB16i5sNxVOFPID97A_jw1Wc5l66nikJEWkseAw2kYbDKOz1Ag8g_gP75cek2z4ynguQbuO7kXCgwaTi0pqXwmEXl471I6ub04K1Ht8iqaLLAX6XhoxT00-YReFFM83y7f_3bAtlculT3iiigVFATgWRWe8fJOI4o7bWuNIw35K_49cXS05IwJ_0ILVHp2NkjJDsU9Sw_0Qh9XT9YU6fczuGQG2lIei2Nw"
 
     def start_call(self):
         return [
@@ -64,10 +64,11 @@ class NCCOServer():
         }]
 
     def make_remind_call(self):
-        requests.post("https://api.nexmo.com/v1/calls", json={
+        r = requests.post("https://api.nexmo.com/v1/calls", json={
             "to": [{
                 "type": "phone",
-                "number": "447718650656"
+                # "number": "447718650656"
+                "number": "447426007676"
               }],
               "from": {
                 "type": "phone",
@@ -79,13 +80,14 @@ class NCCOServer():
             "Authorization": "Bearer " + self.jwt
         })
 
+        print(str(r))
         print(self.domain + "/remind")
 
     def remind_call_ncco(self):
         return [
             {
                 "action" : "talk",
-                "text" : "You have been hacked by russian hackers!"
+                "text" : "You have been hacked by russian hackers"
             }
         ]
 
