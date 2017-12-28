@@ -14,7 +14,7 @@ class NCCOServer():
         self.jwt = self.get_jwt()
 
     def get_jwt(application_id="none", keyfile="jwt.txt") :
-        return "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE1MTQ0ODEyMTcsImp0aSI6IjcxNGJkZTYwLWViZjItMTFlNy05NzRmLTUxYzY1OWJkOWQxNSIsImFwcGxpY2F0aW9uX2lkIjoiZWM2MGVmMTMtNTkxOS00NTI3LWJlMDktNjg3NTU4OWIzYWIyIn0.WyU2G_7o0BzPIh_EKSBR8hmetE034wASA9RwIkaAppd76b-OxYjj7FAhkL7Giht4cHqjgNmsm4dC12AnixICGmVVyeSus-pWwIsMSkfVvQKMcGStfAkncc5B7EZgtis17bXjSP73Xyz4D6zAONJOnnvAZyAjx822tWCjTi2LaB-ntivUPFe-mLZfed0CyckOnyUfKaVI932r40uEIxhkr2dKqVw3jKVB_qLhMHWXB8pTzVfb-NZrZsbcXaD2koaPzUznNnwTTiyAAp3NCHsETbb1RuXBatBqkMK7O-MjcabRyYfHzwkootwh0hCxQLtHCqeR9VhwDWMawtzdYoasjg"
+        return "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE1MTQ0ODI0NjcsImp0aSI6IjVhOWVhMjMwLWViZjUtMTFlNy1iY2I2LWMxYzdjMTAxNTk4YiIsImFwcGxpY2F0aW9uX2lkIjoiZWM2MGVmMTMtNTkxOS00NTI3LWJlMDktNjg3NTU4OWIzYWIyIn0.af8BPfK0U3j2aVL-G09rzwBfqBSlbQ0dJwLP9r20dR-WplEcGNsYRo3rnO2zi_y3fLin9GsrxF9DjcUQNgLDS6eobF7_buna3xdomqTyTe5dTNCdmsSkMhUKhpQ2tqVocJHfHOq1V_pJamDn6wwO7ZzMe97IhU9dKQbtZ4fCYq4_rvv3k1ZsoiqbHjouay8NyevMSM7yTxrI-kvn3ZtfNexATBdygJ4vbbERT2KUptu9PXoSXu65HBokRaDSCam1rDLHd8ORDD9Az7MffI51bEoV34SNdE70fxwt9Hi5iot9AVg14vX2DS90mmk-TwGcgUIaz-Y2pB5YoKElm-bIDQ"
 
     def start_call(self):
         return [
@@ -64,7 +64,7 @@ class NCCOServer():
         }]
 
     def make_remind_call(self):
-        r = requests.post("https://api.nexmo.com/v1/calls", json={
+        r = requests.post("https://api.nexmo.com/v1/calls", headers={"Authorization": "Bearer " + self.jwt}, json={
             "to": [{
                 "type": "phone",
                 "number": "447718650656"
@@ -77,8 +77,6 @@ class NCCOServer():
               },
               "answer_url": [self.domain + "/remind"],
               "event_url": [self.domain + "/event"]
-        }, headers={
-            "Authorization": "Bearer " + self.jwt
         })
 
         print(str(r))
