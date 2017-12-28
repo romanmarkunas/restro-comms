@@ -105,4 +105,4 @@ ENV/
 .mypy_cache/
 
 # intellij
-.idea/workspace.xml
+.idea/
