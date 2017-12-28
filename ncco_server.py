@@ -84,9 +84,28 @@ class NCCOServer():
                         {
                             "action": "talk",
                             "voiceName": "Russell",
-                            "text": "Hi, this is Russell. Youre booking is about to expire"
+                            "text": "Hi, this is Nexmo restaurant. We are just checking you are still ok for your reservation on HOURS, press 1 for yes or 2 to cancel?",
+                            "bargeIn": True
+                        },
+                        {
+                            "action": "input",
+                            "eventUrl": ["http://" + self.domain + "/remind/input"]
                         }
                     ]
+
+    def remind_input_response(self, body=None):
+        dtmf = body["dtmf"]
+        if dtmf == "1":
+            return [
+                {
+                    "action": "talk",
+                    "voiceName": "Russell",
+                    "text": "Cool, look forward to seeing you soon.",
+                }
+            ]
+        # else:
+        #     # do cancel stuff
+
 
     def event_handler(self, request=None, body=None):
         print("received event! : " + str(body) + str(request))
@@ -111,5 +130,6 @@ router.get('/websocket')(ncco_server.stt_websocket)
 router.post('/event')(ncco_server.event_handler)
 router.get('/tables')(ncco_server.tables)
 router.get('/remind')(ncco_server.remind_call_ncco)
+router.post('/remind/input')(ncco_server.remind_input_response)
 
 ncco_server.make_remind_call()
