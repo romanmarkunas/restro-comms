@@ -4,7 +4,6 @@ import hug
 import uuid
 import requests
 from booking_service import BookingService
-import time
 
 class NCCOServer():
 
@@ -115,7 +114,5 @@ router.get('/websocket')(ncco_server.stt_websocket)
 router.post('/event')(ncco_server.event_handler)
 router.get('/tables')(ncco_server.tables)
 router.get('/remind')(ncco_server.remind_call_ncco)
-
-time.sleep(4)
 
 ncco_server.make_remind_call()
