@@ -4,7 +4,6 @@ import hug
 import uuid
 import requests
 from booking_service import BookingService
-import json
 
 class NCCOServer():
 
@@ -86,13 +85,13 @@ class NCCOServer():
         print(self.domain + "/remind")
 
     def remind_call_ncco(self):
-        return json.dumps("""[
+        return [
                         {
                             "action": "talk",
                             "voiceName": "Russell",
                             "text": "Hi, this is Russell. Youre booking is about to expire"
                         }
-                    ]""")
+                    ]
 
     def event_handler(self, request=None, body=None):
         print("received event! : " + str(body) + str(request))
