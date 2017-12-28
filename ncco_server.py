@@ -14,7 +14,7 @@ class NCCOServer():
         self.jwt = self.get_jwt()
 
     def get_jwt(application_id="none", keyfile="jwt.txt") :
-        return "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE1MTQ0MTY2MTUsImp0aSI6IjA3ZGUwOTgwLWViNWMtMTFlNy1hZGM4LWI1NDYyYzJmZGQ3MiIsImFwcGxpY2F0aW9uX2lkIjoiYjc1ZjU4YmEtZjhlZS00N2ZiLWIwZDAtYTQ3YWIyMzE0M2MwIn0.l2kGG1j7jybCWquQirJi4I_EF4Ys6cag6Zi_N7DltkB0f9zv3KakMGIw_T7bmT0hvTa_lkmeHlnPglgJP-c1plY6JoinoQC8pdWz5oEynJkZXqZNLtQkAB16i5sNxVOFPID97A_jw1Wc5l66nikJEWkseAw2kYbDKOz1Ag8g_gP75cek2z4ynguQbuO7kXCgwaTi0pqXwmEXl471I6ub04K1Ht8iqaLLAX6XhoxT00-YReFFM83y7f_3bAtlculT3iiigVFATgWRWe8fJOI4o7bWuNIw35K_49cXS05IwJ_0ILVHp2NkjJDsU9Sw_0Qh9XT9YU6fczuGQG2lIei2Nw"
+        return "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE1MTQ0MTk4OTEsImp0aSI6ImE4MGE4MWMwLWViNjMtMTFlNy05NzY5LWQ1NjlhNTliOTUxNyIsImFwcGxpY2F0aW9uX2lkIjoiYjc1ZjU4YmEtZjhlZS00N2ZiLWIwZDAtYTQ3YWIyMzE0M2MwIn0.UE7652_7K0htpuDrsW0RNGi1TthVG6DRRH-F_oZaJtocCinubFNHWl9WAXsPt-YIFzOfBM9I646gLWPhvZWCDDoPM0H-kLKmiuhrvh7HEfrWtNs7wqcRb-RxT9yiH0cXFftw105qrx2Tu8m3TqfbcUPUCLT9ygip73J64BsWENKRmHfr6dPbq6PZ2VI7YhJdNmqPeO6Ei26s4UNw2_voC-rPSPYk0OIhKRqG3l8FRBQHFHB1lnvB8RKZ0QwJtqeQ9-qtc2CiLI8XczfINz1TiTRFKy-f9vDoKxTOdMqg8tmhZCnZpntwj4xm54VXnnml-FBN_y0yLxmGH-oJ_vkZMQ"
 
     def start_call(self):
         return [
@@ -74,7 +74,7 @@ class NCCOServer():
                 "type": "phone",
                 "number": "447418397022"
               },
-              "answer_url": ["https://nexmo-community.github.io/ncco-examples/first_call_talk.json"],
+              "answer_url": [self.domain + "/remind"],
               "event_url": [self.domain + "/event"]
         }, headers={
             "Authorization": "Bearer " + self.jwt
@@ -86,8 +86,9 @@ class NCCOServer():
     def remind_call_ncco(self):
         return [
             {
-                "action" : "talk",
-                "text" : "You have been hacked by russian hackers"
+                "action": "talk",
+                "voiceName": "Russell",
+                "text": "Hi, this is Russell. Youre booking is about to expire"
             }
         ]
 
