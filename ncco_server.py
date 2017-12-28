@@ -15,7 +15,7 @@ class NCCOServer():
         self.jwt = self.get_jwt()
 
     def get_jwt(application_id="none", keyfile="jwt.txt") :
-        return "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE1MTQ0ODEyMTcsImp0aSI6IjcxNGJkZTYwLWViZjItMTFlNy05NzRmLTUxYzY1OWJkOWQxNSIsImFwcGxpY2F0aW9uX2lkIjoiZWM2MGVmMTMtNTkxOS00NTI3LWJlMDktNjg3NTU4OWIzYWIyIn0.WyU2G_7o0BzPIh_EKSBR8hmetE034wASA9RwIkaAppd76b-OxYjj7FAhkL7Giht4cHqjgNmsm4dC12AnixICGmVVyeSus-pWwIsMSkfVvQKMcGStfAkncc5B7EZgtis17bXjSP73Xyz4D6zAONJOnnvAZyAjx822tWCjTi2LaB-ntivUPFe-mLZfed0CyckOnyUfKaVI932r40uEIxhkr2dKqVw3jKVB_qLhMHWXB8pTzVfb-NZrZsbcXaD2koaPzUznNnwTTiyAAp3NCHsETbb1RuXBatBqkMK7O-MjcabRyYfHzwkootwh0hCxQLtHCqeR9VhwDWMawtzdYoasjg"
+        return "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE1MTQ0OTM0NDcsImp0aSI6ImVhYzYyMTgwLWVjMGUtMTFlNy1hNzJhLTliNDZjMDU4ZDI2OCIsImFwcGxpY2F0aW9uX2lkIjoiYjc1ZjU4YmEtZjhlZS00N2ZiLWIwZDAtYTQ3YWIyMzE0M2MwIn0.uF5yT5IQU9yG9kZGCX-TNFresBHpa7TANEtRpnS_RFmdMAt9AYfQruiSb1Z3ySbfDUhwHu5Oil_cY67ebpBE7za_frMkSgzSQdrN5BmjdMGt2Ki8mMNJjGBdTHvcqNQweZMqcRUchoF5U5lA1TOUlLesAK1l4755pHj7jKfb59TyYB6ru5q_LUI_6vI3JQLyn8TVhaeJaTVdUjvk9JxMyfU9cDng6zshzdYLub9Fb5B-ly24qG9gMlvrUFAdwLVWoRlCo86ZPuYyhFbb9AfIiWmZFpHBf39eziUJsPo_iNHlkY8ArQiPWy53U7-tfiYxwpmpyVlhrnCQUoZa-TSsqw"
 
     def start_call(self):
         return [
@@ -76,7 +76,7 @@ class NCCOServer():
                 # "number": "447418397022"
                   "number": "447520635826"
               },
-              "answer_url": [self.domain + "/remind"],
+              "answer_url": ["http://" + self.domain + "/remind"],
               "event_url": [self.domain + "/event"]
         }, headers={
             "Authorization": "Bearer " + self.jwt
