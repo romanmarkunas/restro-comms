@@ -41,8 +41,15 @@ class NCCOServer():
         return [
             {
                 "action" : "talk",
-                "text" : "Thanks for calling book two tables! Please hold on"
+                "text" : "Thanks for calling Nexmo restaurant. Please select from the following options, 1 for booking or 2 for cancelling.",
+                "voiceName": "Russell",
+                "bargeIn": True
             },
+            {
+                "action": "input",
+                "eventUrl": ["http://" + self.domain + "/ncco/input"]
+            }
+
             # {
             #     "action" : "conversation",
             #     "name" : self.conversation,
@@ -50,21 +57,21 @@ class NCCOServer():
             #     # Music: https://www.bensound.com
             #     "musicOnHoldUrl" : [ self.domain + "/hold-tune" ]
             # }
-            {
-                "action": "connect",
-                "endpoint": [
-                    {
-                        "content-type": "audio/l16;rate=16000",
-                        "headers": {
-                            "aws_key": "AKIAJQ3CX2DGX64WONXQ",
-                            "aws_secret": "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"
-                        },
-                        "type": "websocket",
-                        "uri": "wss://lex-us-east-1.nexmo.com/bot/BookTwoTables/alias/BookBot_no_cancel/user/BookTwoTables/content"
-                    }
-                ],
-                "eventUrl": ["http://" + self.domain + "/event"]
-            }
+            # {
+            #     "action": "connect",
+            #     "endpoint": [
+            #         {
+            #             "content-type": "audio/l16;rate=16000",
+            #             "headers": {
+            #                 "aws_key": "AKIAJQ3CX2DGX64WONXQ",
+            #                 "aws_secret": "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"
+            #             },
+            #             "type": "websocket",
+            #             "uri": "wss://lex-us-east-1.nexmo.com/bot/BookTwoTables/alias/BookBot_no_cancel/user/BookTwoTables/content"
+            #         }
+            #     ],
+            #     "eventUrl": ["http://" + self.domain + "/event"]
+            # }
         ]
 
     # def ivr(self):
@@ -126,6 +133,40 @@ class NCCOServer():
         # else:
         #     # do cancel stuff
 
+    def ncco_input_response(self, body=None):
+        dtmf = body["dtmf"]
+        if dtmf == "1":
+            return [
+                {
+                    "action": "talk",
+                    "voiceName": "Russell",
+                    "text": "Excellent, please enter the time you'd like in the 24 hour format followed by the hash key.",
+                    "bargeIn": True
+                },
+                {
+                    "action": "input",
+                    "submitOnHash": True,
+                    "timeOut": 10,
+                    "eventUrl": ["http://" + self.domain + "/ncco/input/booking"]
+                }
+            ]
+
+    def ncco_input_booking_response(self, body=None):
+        booking_time = body["dtmf"]
+        customer_number = body["from"]
+        alternatives = []
+        result = self.booking_service.book(hour=booking_time, pax=4, alternatives=alternatives, customer_number=customer_number)
+
+        if result:
+            return [
+                {
+                    "action": "talk",
+                    "voiceName": "Russell",
+                    "text": "Fantastic, your booking has been successful.",
+                }
+            ]
+
+
 
     def event_handler(self, request=None, body=None):
         print("received event! : " + str(body) + str(request))
@@ -145,6 +186,8 @@ class NCCOServer():
 ncco_server = NCCOServer("booktwotables.herokuapp.com")
 router = hug.route.API(__name__)
 router.get('/ncco')(ncco_server.start_call)
+router.get('/ncco/input')(ncco_server.ncco_input_response)
+router.get('/ncco/input/booking')(ncco_server.ncco_input_booking_response)
 # router.get('/ivr')(ncco_server.ivr)
 router.get('/websocket')(ncco_server.stt_websocket)
 router.post('/event')(ncco_server.event_handler)
