@@ -75,8 +75,8 @@ class NCCOServer():
                 # "number": "447418397022"
                   "number": "447520635826"
               },
-              "answer_url": [self.domain + "/remind"],
-              "event_url": [self.domain + "/event"]
+              "answer_url": ["http://" + self.domain + "/remind"],
+              "event_url": ["http://" + self.domain + "/event"]
         })
 
         print(str(r))
