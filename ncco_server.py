@@ -14,7 +14,7 @@ class NCCOServer():
         self.jwt = self.get_jwt()
 
     def get_jwt(application_id="none", keyfile="jwt.txt") :
-        return "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE1MTQ0MTk4OTEsImp0aSI6ImE4MGE4MWMwLWViNjMtMTFlNy05NzY5LWQ1NjlhNTliOTUxNyIsImFwcGxpY2F0aW9uX2lkIjoiYjc1ZjU4YmEtZjhlZS00N2ZiLWIwZDAtYTQ3YWIyMzE0M2MwIn0.UE7652_7K0htpuDrsW0RNGi1TthVG6DRRH-F_oZaJtocCinubFNHWl9WAXsPt-YIFzOfBM9I646gLWPhvZWCDDoPM0H-kLKmiuhrvh7HEfrWtNs7wqcRb-RxT9yiH0cXFftw105qrx2Tu8m3TqfbcUPUCLT9ygip73J64BsWENKRmHfr6dPbq6PZ2VI7YhJdNmqPeO6Ei26s4UNw2_voC-rPSPYk0OIhKRqG3l8FRBQHFHB1lnvB8RKZ0QwJtqeQ9-qtc2CiLI8XczfINz1TiTRFKy-f9vDoKxTOdMqg8tmhZCnZpntwj4xm54VXnnml-FBN_y0yLxmGH-oJ_vkZMQ"
+        return "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE1MTQ0ODEyMTcsImp0aSI6IjcxNGJkZTYwLWViZjItMTFlNy05NzRmLTUxYzY1OWJkOWQxNSIsImFwcGxpY2F0aW9uX2lkIjoiZWM2MGVmMTMtNTkxOS00NTI3LWJlMDktNjg3NTU4OWIzYWIyIn0.WyU2G_7o0BzPIh_EKSBR8hmetE034wASA9RwIkaAppd76b-OxYjj7FAhkL7Giht4cHqjgNmsm4dC12AnixICGmVVyeSus-pWwIsMSkfVvQKMcGStfAkncc5B7EZgtis17bXjSP73Xyz4D6zAONJOnnvAZyAjx822tWCjTi2LaB-ntivUPFe-mLZfed0CyckOnyUfKaVI932r40uEIxhkr2dKqVw3jKVB_qLhMHWXB8pTzVfb-NZrZsbcXaD2koaPzUznNnwTTiyAAp3NCHsETbb1RuXBatBqkMK7O-MjcabRyYfHzwkootwh0hCxQLtHCqeR9VhwDWMawtzdYoasjg"
 
     def start_call(self):
         return [
@@ -67,12 +67,13 @@ class NCCOServer():
         r = requests.post("https://api.nexmo.com/v1/calls", json={
             "to": [{
                 "type": "phone",
-                # "number": "447718650656"
-                "number": "447426007676"
+                "number": "447718650656"
+                # "number": "447426007676"
               }],
               "from": {
                 "type": "phone",
-                "number": "447418397022"
+                # "number": "447418397022"
+                  "number": "447520635826"
               },
               "answer_url": [self.domain + "/remind"],
               "event_url": [self.domain + "/event"]
@@ -84,13 +85,13 @@ class NCCOServer():
         print(self.domain + "/remind")
 
     def remind_call_ncco(self):
-        return [
-            {
-                "action": "talk",
-                "voiceName": "Russell",
-                "text": "Hi, this is Russell. Youre booking is about to expire"
-            }
-        ]
+        return """[
+                        {
+                            "action": "talk",
+                            "voiceName": "Russell",
+                            "text": "Hi, this is Russell. Youre booking is about to expire"
+                        }
+                    ]"""
 
     def event_handler(self, request=None, body=None):
         print("received event! : " + str(body) + str(request))
