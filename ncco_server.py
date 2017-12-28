@@ -13,12 +13,10 @@ from jose import jwt
 
 class NCCOServer():
 
-    APPLICATION_ID = "ec60ef13-5919-4527-be09-6875589b3ab2"
+    APPLICATION_ID = "b75f58ba-f8ee-47fb-b0d0-a47ab23143c0"
 
     def generate_jwt(self):
         application_private_key = os.environ["PRIVATE_KEY"]
-        print("xxx")
-        print(application_private_key)
         # Add the unix time at UCT + 0
         d = datetime.utcnow()
 
@@ -95,8 +93,7 @@ class NCCOServer():
               }],
               "from": {
                 "type": "phone",
-                # "number": "447418397022"
-                  "number": "447520635826"
+                "number": "447418397022"
               },
               "answer_url": ["http://" + self.domain + "/remind"],
               "event_url": ["http://" + self.domain + "/event"]
