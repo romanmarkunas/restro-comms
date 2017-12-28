@@ -121,6 +121,7 @@ class NCCOServer():
                     ]
 
     def remind_input_response(self, body=None):
+        print(str(body))
         dtmf = body["dtmf"]
         if dtmf == "1":
             return [
@@ -134,6 +135,7 @@ class NCCOServer():
         #     # do cancel stuff
 
     def ncco_input_response(self, body=None):
+        print(str(body))
         dtmf = body["dtmf"]
         if dtmf == "1":
             return [
@@ -152,6 +154,7 @@ class NCCOServer():
             ]
 
     def ncco_input_booking_response(self, body=None):
+        print(str(body))
         booking_time = body["dtmf"]
         customer_number = body["from"]
         alternatives = []
