@@ -4,17 +4,40 @@ import hug
 import uuid
 import requests
 from booking_service import BookingService
+from datetime import datetime
+from base64 import urlsafe_b64encode
+import os
+import calendar
+from jose import jwt
+
 
 class NCCOServer():
+
+    APPLICATION_ID = "ec60ef13-5919-4527-be09-6875589b3ab2"
+
+    def generate_jwt(self):
+        application_private_key = os.environ["PRIVATE_KEY"]
+        print("xxx")
+        print(application_private_key)
+        # Add the unix time at UCT + 0
+        d = datetime.utcnow()
+
+        token_payload = {
+            "iat": calendar.timegm(d.utctimetuple()),  # issued at
+            "application_id": NCCOServer.APPLICATION_ID,  # application id
+            "jti": urlsafe_b64encode(os.urandom(64)).decode('utf-8')
+        }
+
+        # generate our token signed with this private key...
+        return jwt.encode(
+            claims=token_payload,
+            key=application_private_key,
+            algorithm='RS256')
 
     def __init__(self, domain):
         self.conversation = str(uuid.uuid4())
         self.domain = domain
         self.booking_service = BookingService()
-        self.jwt = self.get_jwt()
-
-    def get_jwt(application_id="none", keyfile="jwt.txt") :
-        return "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE1MTQ0OTY1MjgsImp0aSI6IjE3NjQ4OWYwLWVjMTYtMTFlNy05NDhhLWZmYmEwYWE2ZWM4YyIsImFwcGxpY2F0aW9uX2lkIjoiZWM2MGVmMTMtNTkxOS00NTI3LWJlMDktNjg3NTU4OWIzYWIyIn0.MA6QU2I_87igNs7gwwHzwQbd_J7e-pj3IkH4KDuaG_41nMX7E5diwNEWT54Ud5Tp0crzILhXxOpFFO5WgBO0nkGL7cL_-pPaETBQBXEDl6fYlDpPsKmOWlQgM2OJsOTw0i86fz2JIdD9F_zZyjQpUPA-9sWdkDx5xBScZHxnUEXgfjvA0zjQbgxdW7C3fbZFvHS0I3bZrp-k8rYOzU4e7rzOXzD7axicA0wtp-N6l06XTSkTKelDYpakS0zNBPjffyn2W52OZtt5DNpy3gvdgB09WGkCGeqvmwZgrmXne-gFq1U-agM-x_E3u5mXkvBk3X8C539vrD4dlOk9-kZD8Q"
 
     def start_call(self):
         return [
@@ -64,7 +87,7 @@ class NCCOServer():
         }]
 
     def make_remind_call(self):
-        requests.post("https://api.nexmo.com/v1/calls", headers={"Authorization": "Bearer " + self.jwt}, json={
+        requests.post("https://api.nexmo.com/v1/calls", headers={"Authorization": "Bearer " + self.generate_jwt()}, json={
             "to": [{
                 "type": "phone",
                 "number": "447718650656"
