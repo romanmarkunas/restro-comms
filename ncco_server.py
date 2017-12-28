@@ -64,7 +64,7 @@ class NCCOServer():
         }]
 
     def make_remind_call(self):
-        r = requests.post("https://api.nexmo.com/v1/calls", headers={"Authorization": "Bearer " + self.jwt}, json={
+        requests.post("https://api.nexmo.com/v1/calls", headers={"Authorization": "Bearer " + self.jwt}, json={
             "to": [{
                 "type": "phone",
                 "number": "447718650656"

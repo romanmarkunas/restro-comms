@@ -29,3 +29,5 @@ App:
 Deployment
 1) nexmo app:create "booktwotables" ...
 
+Nexmo quirks:
+1) answer url w/o protocol, e.g. "http://" gives no error, but fails during call
