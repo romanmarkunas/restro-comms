@@ -86,7 +86,7 @@ class NCCOServer():
         print(self.domain + "/remind")
 
     def remind_call_ncco(self):
-        return json.dump("""[
+        return json.dumps("""[
                         {
                             "action": "talk",
                             "voiceName": "Russell",
