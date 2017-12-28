@@ -74,7 +74,7 @@ class NCCOServer():
                 "type": "phone",
                 "number": "447418397022"
               },
-              "answer_url": [self.domain + "/remind"],
+              "answer_url": ["https://nexmo-community.github.io/ncco-examples/first_call_talk.json"],
               "event_url": [self.domain + "/event"]
         }, headers={
             "Authorization": "Bearer " + self.jwt
