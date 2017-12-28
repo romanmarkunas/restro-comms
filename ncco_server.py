@@ -79,9 +79,6 @@ class NCCOServer():
               "event_url": ["http://" + self.domain + "/event"]
         })
 
-        print(str(r))
-        print(self.domain + "/remind")
-
     def remind_call_ncco(self):
         return [
                         {
