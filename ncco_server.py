@@ -4,6 +4,7 @@ import hug
 import uuid
 import requests
 from booking_service import BookingService
+import time
 
 class NCCOServer():
 
@@ -14,7 +15,7 @@ class NCCOServer():
         self.jwt = self.get_jwt()
 
     def get_jwt(application_id="none", keyfile="jwt.txt") :
-        return "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE1MTQ0ODI0NjcsImp0aSI6IjVhOWVhMjMwLWViZjUtMTFlNy1iY2I2LWMxYzdjMTAxNTk4YiIsImFwcGxpY2F0aW9uX2lkIjoiZWM2MGVmMTMtNTkxOS00NTI3LWJlMDktNjg3NTU4OWIzYWIyIn0.af8BPfK0U3j2aVL-G09rzwBfqBSlbQ0dJwLP9r20dR-WplEcGNsYRo3rnO2zi_y3fLin9GsrxF9DjcUQNgLDS6eobF7_buna3xdomqTyTe5dTNCdmsSkMhUKhpQ2tqVocJHfHOq1V_pJamDn6wwO7ZzMe97IhU9dKQbtZ4fCYq4_rvv3k1ZsoiqbHjouay8NyevMSM7yTxrI-kvn3ZtfNexATBdygJ4vbbERT2KUptu9PXoSXu65HBokRaDSCam1rDLHd8ORDD9Az7MffI51bEoV34SNdE70fxwt9Hi5iot9AVg14vX2DS90mmk-TwGcgUIaz-Y2pB5YoKElm-bIDQ"
+        return "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE1MTQ0OTI0NTMsImp0aSI6IjlhOWY4ZTAwLWVjMGMtMTFlNy04ZTUzLWU1ZTNmM2IyZjVmZCIsImFwcGxpY2F0aW9uX2lkIjoiZWM2MGVmMTMtNTkxOS00NTI3LWJlMDktNjg3NTU4OWIzYWIyIn0.k_L5NxcJ28dwZCZr1yysoKXThk3regPt_kLyOSX6XuY_Bh2E202kLMqTcvuZ63tl2zmtB4rLe4uquLU8zduqOJ4tJWcdTtjqwt_eyiAw28Ejnl4MEiRcDt33JaZhzRfieN7muLAKto3iC9NaNTuB8W5055PK8Fm0e14R04fbjVEndJ_QNsYwfK5Dh88IJ7nvJYM-JJZ4C3zkaauKr30AZZGgopb0k-8Pi0bnMHgQLFY2z2aFJSc4ZSv3xsQpuCqGgDymUQxegNu6msZzWgCge41GeHEOJUXsNHwRd5z6lQJg6nfi8diAjs76sSR9HJhhmIb07T8R9oXV7C94zqk7xg"
 
     def start_call(self):
         return [
@@ -114,5 +115,7 @@ router.get('/websocket')(ncco_server.stt_websocket)
 router.post('/event')(ncco_server.event_handler)
 router.get('/tables')(ncco_server.tables)
 router.get('/remind')(ncco_server.remind_call_ncco)
+
+time.sleep(1)
 
 ncco_server.make_remind_call()
