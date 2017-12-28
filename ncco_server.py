@@ -63,7 +63,7 @@ class NCCOServer():
                         "uri": "wss://lex-us-east-1.nexmo.com/bot/BookTwoTables/alias/BookBot_no_cancel/user/BookTwoTables/content"
                     }
                 ],
-                "eventUrl": [ self.domain + "/event"]
+                "eventUrl": ["http://" + self.domain + "/event"]
             }
         ]
 
