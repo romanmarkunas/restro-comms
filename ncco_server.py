@@ -36,6 +36,7 @@ class NCCOServer():
         self.conversation = str(uuid.uuid4())
         self.domain = domain
         self.booking_service = BookingService()
+        self.call_id_and_customer_number = {}
 
     def start_call(self):
         return [
@@ -156,7 +157,7 @@ class NCCOServer():
     def ncco_input_booking_response(self, body=None):
         print(str(body))
         booking_time = body["dtmf"]
-        customer_number = body["from"]
+        customer_number = self.call_id_and_customer_number[body["uuid"]]
         alternatives = []
         result = self.booking_service.book(hour=booking_time, pax=4, alternatives=alternatives, customer_number=customer_number)
 
@@ -172,6 +173,7 @@ class NCCOServer():
 
 
     def event_handler(self, request=None, body=None):
+        self.call_id_and_customer_number[body["uuid"]] = body["from"]
         print("received event! : " + str(body) + str(request))
 
     def tables(self):
