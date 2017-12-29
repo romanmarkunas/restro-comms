@@ -1,5 +1,7 @@
 """Contains all data structures concerning booking"""
 
+# TODO - make all these thread-safe, Booking must be immutable
+
 class Booking():
     """Data class, representing single table booking"""
 
@@ -48,3 +50,25 @@ class Tables():
 
     def __free(self, table, slot):
         return table[slot] == None
+
+class WaitList():
+    """List of bookings which may only be populated from end, but any item can
+    be removed"""
+
+    def __init__(self):
+        self.waitList = []
+
+    def put(self, booking):
+        self.waitList.append(booking)
+
+    def remove(self, index):
+        del self.waitList[index]
+
+    def get_list(self):
+        return tuple(self.waitList)
+
+    def find_first(self, searchPredicate):
+        for index, val in enumerate(self.waitList):
+            if searchPredicate(val):
+                return index
+        return None
