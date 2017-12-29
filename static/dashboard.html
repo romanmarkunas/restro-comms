@@ -25,17 +25,17 @@
         table.removeChild(table.firstChild);
       }
 
-      for (var i = 0; i < 10; i++) {
+      for (var i = 0; i < json.length; i++) {
         var row = document.createElement("tr");
 
         row.appendChild(createTimeLabel(i));
 
-        for (var j = 0; j < 2; j++) {
+        for (var j = 0; j < json[i].length; j++) {
           var col = document.createElement("td");
           addText(col, "Table [" + i + ":" + j + "]");
-          addText(col, "ID: ");
-          addText(col, "PAX: ");
-          addText(col, "LVN: ");
+          addText(col, "ID: " + json[i][j]["id"]);
+          addText(col, "PAX: " + json[i][j]["pax"]);
+          addText(col, "LVN: " + json[i][j]["lvn"]);
           row.appendChild(col);
         }
 
@@ -55,7 +55,6 @@
       return td;
     }
 
-    doUpdateTable("starting... url: " +  window.location.hostname + "/tables");
     setInterval(function(){
       updateTable();
     }, 2000)

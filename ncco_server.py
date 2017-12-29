@@ -96,8 +96,8 @@ class NCCOServer():
         requests.post("https://api.nexmo.com/v1/calls", headers={"Authorization": "Bearer " + self.generate_jwt()}, json={
             "to": [{
                 "type": "phone",
-                "number": "447718650656"
-                # "number": "447426007676"
+                # "number": "447718650656"
+                "number": "447426007676"
               }],
               "from": {
                 "type": "phone",
