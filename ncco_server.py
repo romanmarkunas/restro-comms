@@ -21,6 +21,7 @@ class NCCOServer():
         self.booking_service = BookingService()
         self.call_id_and_customer_number = {}
 
+    @hug.object.get('/ncco')
     def start_call(self):
         return [
             {
@@ -66,17 +67,18 @@ class NCCOServer():
     #             "endOnExit" : "true"
     #     }]
 
-    def stt_websocket(self):
-        return [{
-                "action" : "conversation",
-                "name" : self.conversation,
-                "startOnEnter" : "false"
-                # actually web socket is avr
-                # add hook after socket joined to do IVR
-        }]
+    # def stt_websocket(self):
+    #     return [{
+    #             "action" : "conversation",
+    #             "name" : self.conversation,
+    #             "startOnEnter" : "false"
+    #             # actually web socket is avr
+    #             # add hook after socket joined to do IVR
+    #     }]
 
+    @hug.object.get('/remind')
     def make_remind_call(self):
-        requests.post("https://api.nexmo.com/v1/calls", headers={"Authorization": "Bearer " + self.generate_jwt()}, json={
+        requests.post("https://api.nexmo.com/v1/calls", headers={"Authorization": "Bearer " + self.__generate_jwt()}, json={
             "to": [{
                 "type": "phone",
                 # "number": "447718650656"
@@ -90,7 +92,7 @@ class NCCOServer():
               "event_url": ["http://" + self.domain + "/event"]
         })
 
-    def generate_jwt(self):
+    def __generate_jwt(self):
         application_private_key = os.environ["PRIVATE_KEY"]
         token_payload = {
             "iat": calendar.timegm(datetime.utcnow().utctimetuple()),
@@ -105,18 +107,19 @@ class NCCOServer():
 
     def remind_call_ncco(self):
         return [
-                        {
-                            "action": "talk",
-                            "voiceName": "Russell",
-                            "text": "Hi, this is Nexmo restaurant. We are just checking you are still ok for your reservation on HOURS, press 1 for yes or 2 to cancel?",
-                            "bargeIn": True
-                        },
-                        {
-                            "action": "input",
-                            "eventUrl": ["http://" + self.domain + "/remind/input"]
-                        }
-                    ]
+            {
+                "action": "talk",
+                "voiceName": "Russell",
+                "text": "Hi, this is Nexmo restaurant. We are just checking you are still ok for your reservation on HOURS, press 1 for yes or 2 to cancel?",
+                "bargeIn": True
+            },
+            {
+                "action": "input",
+                "eventUrl": ["http://" + self.domain + "/remind/input"]
+            }
+        ]
 
+    @hug.object.post('/remind/input')
     def remind_input_response(self, body=None):
         print(str(body))
         dtmf = body["dtmf"]
@@ -131,6 +134,7 @@ class NCCOServer():
         # else:
         #     # do cancel stuff
 
+    @hug.object.post('/ncco/input')
     def ncco_input_response(self, body=None):
         print(str(body))
         dtmf = body["dtmf"]
@@ -150,6 +154,7 @@ class NCCOServer():
                 }
             ]
 
+    @hug.object.post('/ncco/input/booking')
     def ncco_input_booking_response(self, body=None):
         print(str(body))
         booking_time = int(body["dtmf"])
@@ -167,7 +172,7 @@ class NCCOServer():
             ]
 
 
-
+    @hug.object.post('/event')
     def event_handler(self, request=None, body=None):
         self.call_id_and_customer_number[body["uuid"]] = body["from"]
         print("received event! : " + str(body) + str(request))
@@ -180,20 +185,10 @@ class NCCOServer():
     def hold_music(self):
         return open('static/bensound-thejazzpiano.mp3', mode='rb')
 
+    @hug.object.get("/dashboard", output = hug.output_format.html)
     def dashboard(self):
         with open("static/dashboard.html") as page:
             return page.read()
 
-# ncco_server = NCCOServer()
 router = hug.route.API(__name__)
 router.object('/')(NCCOServer)
-# router.get('/ncco')(ncco_server.start_call)
-# router.post('/ncco/input')(ncco_server.ncco_input_response)
-# router.post('/ncco/input/booking')(ncco_server.ncco_input_booking_response)
-# router.get('/websocket')(ncco_server.stt_websocket)
-# router.post('/event')(ncco_server.event_handler)
-# router.get('/tables')(ncco_server.tables)
-# router.get('/remind')(ncco_server.remind_call_ncco)
-# router.post('/remind/input')(ncco_server.remind_input_response)
-# router.get("/hold-tune", output = hug.output_format.file)(ncco_server.hold_music)
-# router.get("/dashboard", output = hug.output_format.html)(ncco_server.dashboard)
