@@ -10,6 +10,7 @@ import os
 import calendar
 from jose import jwt
 
+alreadyRun = false
 
 class NCCOServer():
 
@@ -193,6 +194,8 @@ class NCCOServer():
         with open("static/dashboard.html") as page:
             return page.read()
 
-print("APP NAME:" + str(__name__))
-router = hug.route.API(__name__)
-router.object('/')(NCCOServer)
+if not alreadyRun:
+    print("APP NAME:" + str(__name__))
+    router = hug.route.API(__name__)
+    router.object('/')(NCCOServer)
+    alreadyRun = true
