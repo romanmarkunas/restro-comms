@@ -1,1 +1,1 @@
-web: gunicorn ncco_server:__hug_wsgi__
+web: gunicorn --workers=1 ncco_server:__hug_wsgi__
