@@ -24,7 +24,7 @@ class Tables():
 
     def __init__(self):
         self.table1 = Tables.SLOTS*[None]
-        self.table2 = Tables.SLOTS*[None
+        self.table2 = Tables.SLOTS*[None]
         print("IN TABLES INIT: " + str(self.table1) + ", " + str(self.table2))
 
     def check_available(self, slot, booking):
