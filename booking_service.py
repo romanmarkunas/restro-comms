@@ -16,7 +16,7 @@ class BookingService():
         customer_number - customer telephone number
         alternatives - list variable to store alternative booking options"""
 
-        slot = self.__hour_to_slot(hour);
+        slot = self.__hour_to_slot(hour)
         initial_booking = Booking(customer_number, pax)
 
         if (self.tables.check_available(slot, initial_booking)):
@@ -26,6 +26,15 @@ class BookingService():
             alt = self.__generate_alternatives(slot, initial_booking)
             self.__copy_list(alt, alternatives)
             return False
+
+    def cancel(self, hour, lvn = -1, booking_id = -1):
+        """Returns tuple with slot and cancelled booking if cancellation is
+        successful, otherwise returns None"""
+
+        slot = self.__hour_to_slot(hour)
+        return self.tables.cancel_booking(slot,
+                                          booking_id = booking_id,
+                                          customer_number = lvn)
 
     def put_to_wait(self, hour, pax, customer_number):
         slot = self.__hour_to_slot(hour)
