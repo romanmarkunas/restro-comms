@@ -193,5 +193,6 @@ class NCCOServer():
         with open("static/dashboard.html") as page:
             return page.read()
 
-router = hug.route.API(__name__)
-router.object('/')(NCCOServer)
+if __name__ == "__main__"
+    router = hug.route.API(__name__)
+    router.object('/')(NCCOServer)
