@@ -176,15 +176,16 @@ class NCCOServer():
         self.call_id_and_customer_number[body["uuid"]] = body["from"]
         print("received event! : " + str(body) + str(request))
 
+    @hug.object.get('/tables')
     def tables(self):
         return self.booking_service.get_tables()
 
-    @hug.get("/hold-tune", output = hug.output_format.file)
-    def hold_music(**kwargs):
+    @hug.object.get("/hold-tune", output = hug.output_format.file)
+    def hold_music(self):
         return open('static/bensound-thejazzpiano.mp3', mode='rb')
 
-    @hug.get("/dashboard", output = hug.output_format.html)
-    def dashboard(**kwargs):
+    @hug.object.get("/dashboard", output = hug.output_format.html)
+    def dashboard(self):
         with open("static/dashboard.html") as page:
             return page.read()
 
