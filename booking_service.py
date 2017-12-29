@@ -1,10 +1,11 @@
-from booking import Tables, Booking
+from booking import Tables, Booking, WaitList
 
 class BookingService():
     """Booking service object to be used from endpoint layer"""
 
     def __init__(self):
         self.tables = Tables()
+        self.wait_list = WaitList()
 
     def book(self, hour, pax, customer_number, alternatives):
         """Returns true if booking was successful, otherwise returns false and
@@ -15,7 +16,7 @@ class BookingService():
         customer_number - customer telephone number
         alternatives - list variable to store alternative booking options"""
 
-        slot = hour - 12;
+        slot = self.__hour_to_slot(hour);
         initial_booking = Booking(customer_number, pax)
 
         if (self.tables.check_available(slot, initial_booking)):
@@ -26,6 +27,11 @@ class BookingService():
             self.__copy_list(alt, alternatives)
             return False
 
+    def put_to_wait(self, hour, pax, customer_number):
+        slot = self.__hour_to_slot(hour)
+        booking = Booking(customer_number, pax)
+        self.wait_list.put(slot, booking)
+
     def get_tables(self):
         tables_dict = []
         table_status = self.tables.get_tables()
@@ -35,14 +41,24 @@ class BookingService():
             tables_dict.append([table1booking, table2booking])
         return tables_dict
 
+    def get_wait_list(self):
+        wait_list_dict = []
+        wait_list_status = self.wait_list.get_wait_list()
+        for i in wait_list_status:
+            booking = self.__booking_to_dict(i)
+        return wait_list_dict
+
     def clear_bookings(self):
         self.__init__()
+
+    def __hour_to_slot(self, hour):
+        return hour - 12
 
     def __generate_alternatives(self, slot, booking):
         current_pax = booking.pax
         alternatives = []
 
-        while ((not alternatives) or (current_pax <= 0)):
+        while ((not alternatives) and (current_pax > 0)):
             for alt_slot in range(max(0, slot - 1), min(slot + 2, 12)):
                 alt_booking = Booking(booking.customer_number, current_pax)
                 alternatives.append((alt_slot, alt_booking))

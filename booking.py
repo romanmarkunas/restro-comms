@@ -53,22 +53,24 @@ class Tables():
 
 class WaitList():
     """List of bookings which may only be populated from end, but any item can
-    be removed"""
+    be removed. Has search function that accepts predicate and can ignore
+    first ignore_count values that yield True"""
 
     def __init__(self):
-        self.waitList = []
+        self.wait_list = []
 
-    def put(self, booking):
-        self.waitList.append(booking)
+    def put(self, slot_booking_tuple):
+        self.wait_list.append(slot_booking_tuple)
 
     def remove(self, index):
-        del self.waitList[index]
+        del self.wait_list[index]
 
     def get_list(self):
-        return tuple(self.waitList)
+        return tuple(self.wait_list)
 
-    def find_first(self, searchPredicate):
-        for index, val in enumerate(self.waitList):
-            if searchPredicate(val):
+    def find(self, search_predicate, ignore_count = 0):
+        for index, val in enumerate(self.wait_list):
+            if search_predicate(val) and ignore_count <= 0:
                 return index
+            ignore_count -= 1
         return None
