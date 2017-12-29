@@ -26,11 +26,13 @@
       }
 
       for (var i = 0; i < json.length; i++) {
+        console.log(json[i])
         var row = document.createElement("tr");
 
         row.appendChild(createTimeLabel(i));
 
         for (var j = 0; j < json[i].length; j++) {
+          console.log(json[i][j])
           var col = document.createElement("td");
           addText(col, "Table [" + i + ":" + j + "]");
           addText(col, "ID: " + json[i][j]["id"]);
