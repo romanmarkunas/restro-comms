@@ -172,9 +172,11 @@ class NCCOServer():
         self.call_id_and_customer_number[body["uuid"]] = body["from"]
         print("received event! : " + str(body) + str(request))
 
+    @hug.object.get('/tables')
     def tables(self):
         return self.booking_service.get_tables()
 
+    @hug.object.get("/hold-tune", output = hug.output_format.file)
     def hold_music(self):
         return open('static/bensound-thejazzpiano.mp3', mode='rb')
 
@@ -182,15 +184,16 @@ class NCCOServer():
         with open("static/dashboard.html") as page:
             return page.read()
 
-ncco_server = NCCOServer()
+# ncco_server = NCCOServer()
 router = hug.route.API(__name__)
-router.get('/ncco')(ncco_server.start_call)
-router.post('/ncco/input')(ncco_server.ncco_input_response)
-router.post('/ncco/input/booking')(ncco_server.ncco_input_booking_response)
-router.get('/websocket')(ncco_server.stt_websocket)
-router.post('/event')(ncco_server.event_handler)
-router.get('/tables')(ncco_server.tables)
-router.get('/remind')(ncco_server.remind_call_ncco)
-router.post('/remind/input')(ncco_server.remind_input_response)
-router.get("/hold-tune", output = hug.output_format.file)(ncco_server.hold_music)
-router.get("/dashboard", output = hug.output_format.html)(ncco_server.dashboard)
+router.object('/')(NCCOServer)
+# router.get('/ncco')(ncco_server.start_call)
+# router.post('/ncco/input')(ncco_server.ncco_input_response)
+# router.post('/ncco/input/booking')(ncco_server.ncco_input_booking_response)
+# router.get('/websocket')(ncco_server.stt_websocket)
+# router.post('/event')(ncco_server.event_handler)
+# router.get('/tables')(ncco_server.tables)
+# router.get('/remind')(ncco_server.remind_call_ncco)
+# router.post('/remind/input')(ncco_server.remind_input_response)
+# router.get("/hold-tune", output = hug.output_format.file)(ncco_server.hold_music)
+# router.get("/dashboard", output = hug.output_format.html)(ncco_server.dashboard)
