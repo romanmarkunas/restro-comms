@@ -15,26 +15,9 @@ class NCCOServer():
 
     APPLICATION_ID = "b75f58ba-f8ee-47fb-b0d0-a47ab23143c0"
 
-    def generate_jwt(self):
-        application_private_key = os.environ["PRIVATE_KEY"]
-        # Add the unix time at UCT + 0
-        d = datetime.utcnow()
-
-        token_payload = {
-            "iat": calendar.timegm(d.utctimetuple()),  # issued at
-            "application_id": NCCOServer.APPLICATION_ID,  # application id
-            "jti": urlsafe_b64encode(os.urandom(64)).decode('utf-8')
-        }
-
-        # generate our token signed with this private key...
-        return jwt.encode(
-            claims=token_payload,
-            key=application_private_key,
-            algorithm='RS256')
-
-    def __init__(self, domain):
+    def __init__(self):
         self.conversation = str(uuid.uuid4())
-        self.domain = domain
+        self.domain = "booktwotables.herokuapp.com"
         self.booking_service = BookingService()
         self.call_id_and_customer_number = {}
 
@@ -107,6 +90,19 @@ class NCCOServer():
               "event_url": ["http://" + self.domain + "/event"]
         })
 
+    def generate_jwt(self):
+        application_private_key = os.environ["PRIVATE_KEY"]
+        token_payload = {
+            "iat": calendar.timegm(datetime.utcnow().utctimetuple()),
+            "application_id": NCCOServer.APPLICATION_ID,
+            "jti": urlsafe_b64encode(os.urandom(64)).decode('utf-8')
+        }
+
+        return jwt.encode(
+            claims=token_payload,
+            key=application_private_key,
+            algorithm='RS256')
+
     def remind_call_ncco(self):
         return [
                         {
@@ -176,29 +172,25 @@ class NCCOServer():
         self.call_id_and_customer_number[body["uuid"]] = body["from"]
         print("received event! : " + str(body) + str(request))
 
-    @hug.object.get('/tables')
     def tables(self):
         return self.booking_service.get_tables()
 
-    @hug.object.get("/hold-tune", output = hug.output_format.file)
     def hold_music(self):
         return open('static/bensound-thejazzpiano.mp3', mode='rb')
 
-    @hug.object.get("/dashboard", output = hug.output_format.html)
     def dashboard(self):
         with open("static/dashboard.html") as page:
             return page.read()
 
-ncco_server = NCCOServer("booktwotables.herokuapp.com")
+ncco_server = NCCOServer()
 router = hug.route.API(__name__)
 router.get('/ncco')(ncco_server.start_call)
 router.post('/ncco/input')(ncco_server.ncco_input_response)
 router.post('/ncco/input/booking')(ncco_server.ncco_input_booking_response)
-# router.get('/ivr')(ncco_server.ivr)
 router.get('/websocket')(ncco_server.stt_websocket)
 router.post('/event')(ncco_server.event_handler)
 router.get('/tables')(ncco_server.tables)
 router.get('/remind')(ncco_server.remind_call_ncco)
 router.post('/remind/input')(ncco_server.remind_input_response)
-
-ncco_server.make_remind_call()
+router.get("/hold-tune", output = hug.output_format.file)(ncco_server.hold_music)
+router.get("/dashboard", output = hug.output_format.html)(ncco_server.dashboard)
