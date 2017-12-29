@@ -45,11 +45,33 @@ class Tables():
         else:
             self.table2[slot] = booking
 
+    def cancel_booking(self, slot, booking_id = -1, customer_number = -1):
+        cancelled_booking1 = self.__cancel_if_match(self.table1, slot, booking_id, customer_number)
+        cancelled_booking2 = self.__cancel_if_match(self.table2, slot, booking_id, customer_number)
+        if cancelled_booking1 != None:
+            return cancelled_booking1
+        else:
+            return cancelled_booking2
+
     def get_tables(self):
         return [tuple(self.table1), tuple(self.table2)]
 
     def __free(self, table, slot):
         return table[slot] == None
+
+    def __cancel_if_match(self, table, slot, booking_id, customer_number):
+        if booking_id != -1 and booking_id == table[slot].id:
+            cancelled_booking = self.__do_cancel(table, slot)
+        elif customer_number != -1 and customer_number == table[slot].customer_number:
+            cancelled_booking = self.__do_cancel(table, slot)
+        else:
+            cancelled_booking = None
+        return cancelled_booking
+
+    def __do_cancel(self, table, slot):
+        cancelled_booking = table[slot]
+        table[slot] = None
+        return cancelled_booking
 
 class WaitList():
     """List of bookings which may only be populated from end, but any item can
