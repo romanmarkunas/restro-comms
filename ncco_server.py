@@ -19,6 +19,7 @@ class NCCOServer():
         self.conversation = str(uuid.uuid4())
         self.domain = "booktwotables.herokuapp.com"
         self.booking_service = BookingService()
+        print("IN NCCO INIT: " + str(self.booking_service))
         self.call_id_and_customer_number = {}
 
     @hug.object.get('/ncco')
@@ -161,6 +162,7 @@ class NCCOServer():
         customer_number = self.call_id_and_customer_number[body["uuid"]]
         alternatives = []
         result = self.booking_service.book(hour=booking_time, pax=4, alternatives=alternatives, customer_number=customer_number)
+        print("IN BOOKING: " + str(self.booking_service))
 
         if result:
             return [
@@ -179,6 +181,7 @@ class NCCOServer():
 
     @hug.object.get('/tables')
     def tables(self):
+        print("IN TABLES: " + str(self.booking_service))
         return self.booking_service.get_tables()
 
     @hug.object.get("/hold-tune", output = hug.output_format.file)
