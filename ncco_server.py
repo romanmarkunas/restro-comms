@@ -15,13 +15,12 @@ alreadyRun = False
 class NCCOServer():
 
     APPLICATION_ID = "b75f58ba-f8ee-47fb-b0d0-a47ab23143c0"
+    __booking_service = BookingService()
+    __call_id_and_customer_number = {}
 
     def __init__(self):
-        self.conversation = str(uuid.uuid4())
         self.domain = "booktwotables.herokuapp.com"
-        self.booking_service = BookingService()
-        print("IN NCCO INIT: " + str(self.booking_service))
-        self.call_id_and_customer_number = {}
+        print("IN NCCO INIT: " + str(NCCOServer.__booking_service))
 
     @hug.object.get('/ncco')
     def start_call(self):
@@ -78,7 +77,6 @@ class NCCOServer():
     #             # add hook after socket joined to do IVR
     #     }]
 
-    @hug.object.get('/remind')
     def make_remind_call(self):
         requests.post("https://api.nexmo.com/v1/calls", headers={"Authorization": "Bearer " + self.__generate_jwt()}, json={
             "to": [{
@@ -107,6 +105,7 @@ class NCCOServer():
             key=application_private_key,
             algorithm='RS256')
 
+    @hug.object.get('/remind')
     def remind_call_ncco(self):
         return [
             {
@@ -158,14 +157,14 @@ class NCCOServer():
 
     @hug.object.post('/ncco/input/booking')
     def ncco_input_booking_response(self, body=None):
-        print(str(body))
+        uuid = body["uuid"]
         booking_time = int(body["dtmf"])
-        customer_number = self.call_id_and_customer_number[body["uuid"]]
+        customer_number = NCCOServer.__call_id_and_customer_number[uuid]
         alternatives = []
-        result = self.booking_service.book(hour=booking_time, pax=4, alternatives=alternatives, customer_number=customer_number)
-        print("IN BOOKING: " + str(self.booking_service))
+        result = NCCOServer.__booking_service.book(hour=booking_time, pax=4, alternatives=alternatives, customer_number=customer_number)
 
         if result:
+            NCCOServer.__call_id_and_customer_number.pop(uuid, None)
             return [
                 {
                     "action": "talk",
@@ -177,13 +176,12 @@ class NCCOServer():
 
     @hug.object.post('/event')
     def event_handler(self, request=None, body=None):
-        self.call_id_and_customer_number[body["uuid"]] = body["from"]
+        NCCOServer.__call_id_and_customer_number[body["uuid"]] = body["from"]
         print("received event! : " + str(body) + str(request))
 
     @hug.object.get('/tables')
     def tables(self):
-        print("IN TABLES: " + str(self.booking_service))
-        return self.booking_service.get_tables()
+        return NCCOServer.__booking_service.get_tables()
 
     @hug.object.get("/hold-tune", output = hug.output_format.file)
     def hold_music(self):
