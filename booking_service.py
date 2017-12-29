@@ -5,7 +5,6 @@ class BookingService():
 
     def __init__(self):
         self.tables = Tables()
-        print("IN SERVICE INIT: " + str(self.tables))
 
     def book(self, hour, pax, customer_number, alternatives):
         """Returns true if booking was successful, otherwise returns false and
@@ -29,7 +28,6 @@ class BookingService():
 
     def get_tables(self):
         tables_dict = []
-        print("IN GET TABLES: " + str(self.tables))
         table_status = self.tables.get_tables()
         for i in range(0, Tables.SLOTS):
             table1booking = self.__booking_to_dict(table_status[0][i])

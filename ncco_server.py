@@ -10,17 +10,15 @@ import os
 import calendar
 from jose import jwt
 
-alreadyRun = False
-
 class NCCOServer():
 
     APPLICATION_ID = "b75f58ba-f8ee-47fb-b0d0-a47ab23143c0"
-    __booking_service = BookingService()
-    __call_id_and_customer_number = {}
 
     def __init__(self):
         self.domain = "booktwotables.herokuapp.com"
-        print("IN NCCO INIT: " + str(NCCOServer.__booking_service))
+        self.booking_service = BookingService()
+        self.uuid_to_lvn = {}
+        print("IN NCCO INIT: " + str(self.booking_service))
 
     @hug.object.get('/ncco')
     def start_call(self):
@@ -122,7 +120,6 @@ class NCCOServer():
 
     @hug.object.post('/remind/input')
     def remind_input_response(self, body=None):
-        print(str(body))
         dtmf = body["dtmf"]
         if dtmf == "1":
             return [
@@ -137,7 +134,6 @@ class NCCOServer():
 
     @hug.object.post('/ncco/input')
     def ncco_input_response(self, body=None):
-        print(str(body))
         dtmf = body["dtmf"]
         if dtmf == "1":
             return [
@@ -159,12 +155,12 @@ class NCCOServer():
     def ncco_input_booking_response(self, body=None):
         uuid = body["uuid"]
         booking_time = int(body["dtmf"])
-        customer_number = NCCOServer.__call_id_and_customer_number[uuid]
+        customer_number = self.uuid_to_lvn[uuid]
         alternatives = []
-        result = NCCOServer.__booking_service.book(hour=booking_time, pax=4, alternatives=alternatives, customer_number=customer_number)
+        result = self.booking_service.book(hour=booking_time, pax=4, alternatives=alternatives, customer_number=customer_number)
 
         if result:
-            NCCOServer.__call_id_and_customer_number.pop(uuid, None)
+            self.uuid_to_lvn.pop(uuid, None)
             return [
                 {
                     "action": "talk",
@@ -176,12 +172,12 @@ class NCCOServer():
 
     @hug.object.post('/event')
     def event_handler(self, request=None, body=None):
-        NCCOServer.__call_id_and_customer_number[body["uuid"]] = body["from"]
+        self.uuid_to_lvn[body["uuid"]] = body["from"]
         print("received event! : " + str(body) + str(request))
 
     @hug.object.get('/tables')
     def tables(self):
-        return NCCOServer.__booking_service.get_tables()
+        return self.booking_service.get_tables()
 
     @hug.object.get("/hold-tune", output = hug.output_format.file)
     def hold_music(self):
@@ -192,8 +188,5 @@ class NCCOServer():
         with open("static/dashboard.html") as page:
             return page.read()
 
-if not alreadyRun:
-    print("APP NAME:" + str(__name__))
-    router = hug.route.API(__name__)
-    router.object('/')(NCCOServer)
-    alreadyRun = True
+router = hug.route.API(__name__)
+router.object('/')(NCCOServer)
