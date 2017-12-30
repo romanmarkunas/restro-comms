@@ -18,7 +18,7 @@ class NCCOServer():
         self.domain = "booktwotables.herokuapp.com"
         self.booking_service = BookingService()
         self.uuid_to_lvn = {}
-        print("IN NCCO INIT: " + str(self.booking_service))
+        self.outbound_uuid_to_booking = {}
 
     @hug.object.get('/ncco')
     def start_call(self):
@@ -125,24 +125,23 @@ class NCCOServer():
     @hug.object.post('/remind/trigger')
     def remind_trigger_call(self, body=None):
         booking_id = int(body["id"])
-        print("Searhing for booking with id " + str(booking_id))
         booking = self.booking_service.find(booking_id)[1]
-        r = requests.post("https://api.nexmo.com/v1/calls",
-                      headers = { "Authorization": "Bearer " + self.__generate_jwt() },
-                      json = {
-                        "to": [{
-                            "type": "phone",
-                            "number": str(booking.customer_number)
-                        }],
-                        "from": {
-                            "type": "phone",
-                            "number": "447418397022"
-                        },
-                        "answer_url": ["http://" + self.domain + "/remind"],
-                        "event_url": ["http://" + self.domain + "/event"]
-                      }) # would be easier if this already returned generate uuid
-        print(str(r.json()))
-        print(str(r.text()))
+        response = requests.post(
+            "https://api.nexmo.com/v1/calls",
+            headers = { "Authorization": "Bearer " + self.__generate_jwt() },
+            json = {
+                "to": [{
+                    "type": "phone",
+                    "number": str(booking.customer_number)
+                }],
+                "from": {
+                    "type": "phone",
+                    "number": "447418397022"
+                },
+                "answer_url": ["http://" + self.domain + "/remind"],
+                "event_url": ["http://" + self.domain + "/event"]
+              })
+        self.outbound_uuid_to_booking[response.json()["uuid"]] = booking_id
 
     def __generate_jwt(self):
         return jwt.encode(
