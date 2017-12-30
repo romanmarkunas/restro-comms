@@ -55,7 +55,7 @@ class Tables():
         else:
             return cancelled_booking2
 
-    def find_booking_slots(self, customer_number):
+    def find_bookings(self, customer_number):
         slots1 = self.__do_find(self.table1, customer_number)
         slots2 = self.__do_find(self.table2, customer_number)
         in_2_not_in_1 = set(slots2) - set(slots1)
@@ -79,11 +79,11 @@ class Tables():
         return cancelled_booking
 
     def __do_find(self, table, customer_number):
-        slots = []
+        bookings = []
         for slot, booking in enumerate(table):
             if booking != None and booking.customer_number == customer_number
-                slots.append(slot)
-        return slots
+                bookings.append((slot, booking))
+        return bookings
 
 class WaitList():
     """List of bookings which may only be populated from end, but any item can
