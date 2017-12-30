@@ -156,7 +156,7 @@ class NCCOServer():
 
     @hug.object.get('/remind/start')
     def remind_start_ncco(self, conversation_uuid = None): # why Nexmo do not provide uuid here?
-        booking_id = self.outbound_uuid_to_booking(conversation_uuid)
+        booking_id = self.outbound_uuid_to_booking[conversation_uuid]
         time = self.booking_service.find(booking_id)[0]
         return [{
             "action": "talk",
