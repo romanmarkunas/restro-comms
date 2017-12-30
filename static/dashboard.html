@@ -52,7 +52,8 @@
       button.innerHtml = "Remind"
       button.addEventListener("click", function() {
         $.post("../trigger-remind", { id: bookingId }, "json");
-      })
+      });
+      return button;
     }
 
     function createTimeLabel(slot) {
