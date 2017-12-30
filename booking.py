@@ -48,16 +48,10 @@ class Tables():
             self.table2[slot] = booking
 
     def cancel_booking(self, booking_id):
-        cancelled_booking1 = None
-        cancelled_booking2 = None
-        for slot, booking in enumerate(self.table1):
-            if booking != None and booking.id == booking_id:
-                cancelled_booking1 = (slot, self.__do_cancel(self.table1, slot))
-                break
-        for slot, booking in enumerate(self.table2):
-            if booking != None and booking.id == booking_id:
-                cancelled_booking2 = (slot, self.__do_cancel(self.table2, slot))
-                break
+        c1 = lambda slot, booking: (slot, self.__do_cancel(self.table1, slot))
+        c2 = lambda slot, booking: (slot, self.__do_cancel(self.table2, slot))
+        cancelled_booking1 = self.__on_first_with_id(booking_id, self.table1, c1)
+        cancelled_booking2 = self.__on_first_with_id(booking_id, self.table2, c2)
         if cancelled_booking1 != None:
             return cancelled_booking1
         else:
@@ -70,12 +64,13 @@ class Tables():
         return slots1 + list(in_2_not_in_1)
 
     def find_booking_by_id(self, booking_id):
-        for slot, booking in enumerate(self.table1):
-            if booking != None and booking.id == booking_id:
-                return (slot, booking)
-        for slot, booking in enumerate(self.table2):
-            if booking != None and booking.id == booking_id:
-                return (slot, booking)
+        return_found = lambda slot, booking: (slot, booking)
+        b1 = self.__on_first_with_id(booking_id, self.table1, return_found)
+        b2 = self.__on_first_with_id(booking_id, self.table2, return_found)
+        if b1 != None:
+            return b1
+        else:
+            return b2
 
     def get_tables(self):
         return [tuple(self.table1), tuple(self.table2)]
@@ -87,6 +82,11 @@ class Tables():
         cancelled_booking = table[slot]
         table[slot] = None
         return cancelled_booking
+
+    def __on_first_with_id(self, booking_id, table, slot_booking_fun):
+        for slot, booking in enumerate(table):
+            if booking != None and booking.id == booking_id:
+                return slot_booking_fun(slot, booking)
 
     def __do_find(self, table, customer_number):
         bookings = []
