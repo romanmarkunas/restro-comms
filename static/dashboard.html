@@ -49,7 +49,8 @@
 
     function createRemindButton(bookingId) {
       var button = document.createElement("button");
-      button.innerHtml = "Remind"
+      var text = document.createTextNode("Remind")
+      button.appendChild(text)
       button.addEventListener("click", function() {
         $.post("../trigger-remind", { id: bookingId }, "json");
       });
