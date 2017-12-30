@@ -51,7 +51,7 @@
       var button = document.createElement("button");
       button.innerHtml = "Remind"
       button.addEventListener("click", function() {
-        $.post("../trigger-remind", data: { id: bookingId }, dataType: "json");
+        $.post("../trigger-remind", { id: bookingId }, "json");
       })
     }
 
