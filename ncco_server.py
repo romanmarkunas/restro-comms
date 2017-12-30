@@ -154,8 +154,9 @@ class NCCOServer():
             algorithm = 'RS256')
 
     @hug.object.get('/remind/start')
-    def remind_start_ncco(self, body = None):
+    def remind_start_ncco(self, body = None, request = None):
         print(str(self.outbound_uuid_to_booking))
+        print(str(request))
         print(str(body))
         booking_id = self.outbound_uuid_to_booking(body["uuid"])
         time = self.booking_service.find(booking_id)[0]
@@ -192,8 +193,8 @@ class NCCOServer():
 
     @hug.object.post('/event')
     def event_handler(self, request=None, body=None):
-        self.uuid_to_lvn[body["uuid"]] = body["from"]
         print("received event! : " + str(body) + str(request))
+        self.uuid_to_lvn[body["uuid"]] = body["from"]
 
     @hug.object.get('/tables')
     def tables(self):
