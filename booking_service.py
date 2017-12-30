@@ -31,12 +31,12 @@ class BookingService():
         booking_tuple = self.tables.find_booking_by_id(booking_id)
         return (self.__slot_to_hour(booking_tuple[0]), booking_tuple[1])
 
-    def cancel(self, customer_number):
+    def cancel(self, booking_id):
         """Returns tuple with slot and cancelled booking if cancellation is
         successful, otherwise returns None"""
 
-        slot = self.tables.find_booking_slots(customer_number)[0][0]
-        return self.tables.cancel_booking(slot, customer_number)
+        booking_tuple = self.tables.cancel_booking(slot, booking_id)
+        return (self.__slot_to_hour(booking_tuple[0]), booking_tuple[1])
 
     def put_to_wait(self, hour, pax, customer_number):
         slot = self.__hour_to_slot(hour)

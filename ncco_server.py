@@ -182,7 +182,8 @@ class NCCOServer():
                 "text": "Cool, looking forward to see you soon.",
             }]
         elif dtmf == "2":
-            booking_id = self.outbound_uuid_to_booking(uuid)
+            booking_id = self.outbound_uuid_to_booking[uuid]
+            self.booking_service.cancel(booking_id)
             return [{
                 "action": "talk",
                 "voiceName": "Russell",

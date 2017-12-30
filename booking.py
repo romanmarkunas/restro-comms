@@ -47,13 +47,13 @@ class Tables():
         else:
             self.table2[slot] = booking
 
-    def cancel_booking(self, slot, customer_number):
-        cancelled_booking1 = self.__cancel_if_match(self.table1, slot, customer_number)
-        cancelled_booking2 = self.__cancel_if_match(self.table2, slot, customer_number)
-        if cancelled_booking1 != None:
-            return cancelled_booking1
-        else:
-            return cancelled_booking2
+    def cancel_booking(self, booking_id):
+        for slot, booking in enumerate(self.table1):
+            if booking != None and booking.id == booking_id:
+                return (slot, self.__do_cancel(self.table1, slot))
+        for slot, booking in enumerate(self.table2):
+            if booking != None and booking.id == booking_id:
+                return (slot, self.__do_cancel(self.table2, slot))
 
     def find_bookings(self, customer_number):
         slots1 = self.__do_find(self.table1, customer_number)
@@ -74,12 +74,6 @@ class Tables():
 
     def __free(self, table, slot):
         return table[slot] == None
-
-    def __cancel_if_match(self, table, slot, customer_number):
-        if customer_number == table[slot].customer_number:
-            return self.__do_cancel(table, slot)
-        else:
-            return None
 
     def __do_cancel(self, table, slot):
         cancelled_booking = table[slot]
