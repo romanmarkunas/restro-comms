@@ -155,8 +155,10 @@ class NCCOServer():
 
     @hug.object.get('/remind/start')
     def remind_start_ncco(self, body = None):
+        print(str(self.outbound_uuid_to_booking))
+        print(str(body))
         booking_id = self.outbound_uuid_to_booking(body["uuid"])
-        time = self.booking_service.find(booking_id[0])
+        time = self.booking_service.find(booking_id)[0]
         return [{
             "action": "talk",
             "voiceName": "Russell",
