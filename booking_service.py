@@ -29,7 +29,7 @@ class BookingService():
 
     def find(self, booking_id):
         booking_tuple = self.tables.find_booking_by_id(booking_id)
-        return tuple(self.__slot_to_hour(booking_tuple[0]), booking_tuple[1])
+        return (self.__slot_to_hour(booking_tuple[0]), booking_tuple[1])
 
     def cancel(self, customer_number):
         """Returns tuple with slot and cancelled booking if cancellation is
