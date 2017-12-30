@@ -32,9 +32,9 @@
         for (var j = 0; j < json[i].length; j++) {
           var col = document.createElement("td");
           addText(col, "Table [" + i + ":" + j + "]");
-          addText(col, "ID: " + json[i][j]["id"]);
           addText(col, "PAX: " + json[i][j]["pax"]);
           addText(col, "LVN: " + json[i][j]["lvn"]);
+          col.appendChild(createRemindButton(json[i][j]["id"]));
           row.appendChild(col);
         }
 
@@ -45,6 +45,14 @@
     function addText(el, text) {
       el.appendChild(document.createTextNode(text));
       el.appendChild(document.createElement("br"));
+    }
+
+    function createRemindButton(bookingId) {
+      var button = document.createElement("button");
+      button.innerHtml = "Remind"
+      button.addEventListener("click", function() {
+        $.post("../trigger-remind", data: { id: bookingId }, dataType: "json");
+      })
     }
 
     function createTimeLabel(slot) {
