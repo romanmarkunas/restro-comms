@@ -81,7 +81,7 @@ class Tables():
     def __do_find(self, table, customer_number):
         bookings = []
         for slot, booking in enumerate(table):
-            if booking != None and booking.customer_number == customer_number
+            if booking != None and booking.customer_number == customer_number:
                 bookings.append((slot, booking))
         return bookings
 
