@@ -75,6 +75,51 @@ class NCCOServer():
     #             # add hook after socket joined to do IVR
     #     }]
 
+    @hug.object.post('/ncco/input')
+    def ncco_input_response(self, body=None):
+        dtmf = body["dtmf"]
+        if dtmf == "1":
+            return [
+                {
+                    "action": "talk",
+                    "voiceName": "Russell",
+                    "text": "Excellent, please enter the time you'd like in the 24 hour format followed by the hash key.",
+                    "bargeIn": True
+                },
+                {
+                    "action": "input",
+                    "submitOnHash": True,
+                    "timeOut": 10,
+                    "eventUrl": ["http://" + self.domain + "/ncco/input/booking"]
+                }
+            ]
+        elif dtmf == "2
+            uuid = body["uuid"]
+            return [
+                {
+                    "action": "talk",
+                    "voiceName": "Russell",
+                    "text": "This feature is not ready! No way back, man!"
+                }
+
+    @hug.object.post('/ncco/input/booking')
+    def ncco_input_booking_response(self, body=None):
+        uuid = body["uuid"]
+        booking_time = int(body["dtmf"])
+        customer_number = self.uuid_to_lvn[uuid]
+        alternatives = []
+        result = self.booking_service.book(hour=booking_time, pax=4, alternatives=alternatives, customer_number=customer_number)
+
+        if result:
+            self.uuid_to_lvn.pop(uuid, None)
+            return [
+                {
+                    "action": "talk",
+                    "voiceName": "Russell",
+                    "text": "Fantastic, your booking has been successful.",
+                }
+            ]
+
     def make_remind_call(self):
         requests.post("https://api.nexmo.com/v1/calls", headers={"Authorization": "Bearer " + self.__generate_jwt()}, json={
             "to": [{
@@ -131,44 +176,6 @@ class NCCOServer():
             ]
         # else:
         #     # do cancel stuff
-
-    @hug.object.post('/ncco/input')
-    def ncco_input_response(self, body=None):
-        dtmf = body["dtmf"]
-        if dtmf == "1":
-            return [
-                {
-                    "action": "talk",
-                    "voiceName": "Russell",
-                    "text": "Excellent, please enter the time you'd like in the 24 hour format followed by the hash key.",
-                    "bargeIn": True
-                },
-                {
-                    "action": "input",
-                    "submitOnHash": True,
-                    "timeOut": 10,
-                    "eventUrl": ["http://" + self.domain + "/ncco/input/booking"]
-                }
-            ]
-
-    @hug.object.post('/ncco/input/booking')
-    def ncco_input_booking_response(self, body=None):
-        uuid = body["uuid"]
-        booking_time = int(body["dtmf"])
-        customer_number = self.uuid_to_lvn[uuid]
-        alternatives = []
-        result = self.booking_service.book(hour=booking_time, pax=4, alternatives=alternatives, customer_number=customer_number)
-
-        if result:
-            self.uuid_to_lvn.pop(uuid, None)
-            return [
-                {
-                    "action": "talk",
-                    "voiceName": "Russell",
-                    "text": "Fantastic, your booking has been successful.",
-                }
-            ]
-
 
     @hug.object.post('/event')
     def event_handler(self, request=None, body=None):
