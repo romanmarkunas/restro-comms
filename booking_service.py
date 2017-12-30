@@ -36,6 +36,8 @@ class BookingService():
         successful, otherwise returns None"""
 
         booking_tuple = self.tables.cancel_booking(booking_id)
+        for item in booking_tuple:
+            print("A tuple: ", item)
         # print("booking_tuple" + booking_tuple)
         # return self.__slot_to_hour(booking_tuple[0]), booking_tuple[1]
 
