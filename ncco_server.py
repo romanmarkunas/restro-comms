@@ -162,7 +162,7 @@ class NCCOServer():
             "action": "talk",
             "voiceName": "Russell",
             "text": "Hi, this is book two tables. Just checking you are still "\
-                    "OK for your reservation at " + time + " hours? "\
+                    "OK for your reservation at " + str(time) + " hours? "\
                     "Press 1 for yes, 2 for cancel or any other key to repeat.",
             "bargeIn": True
         },
