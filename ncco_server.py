@@ -141,7 +141,8 @@ class NCCOServer():
                 "answer_url": ["http://" + self.domain + "/remind/start"],
                 "event_url": ["http://" + self.domain + "/event"]
               })
-        self.outbound_uuid_to_booking[response.json()["uuid"]] = booking_id
+        uuid = response.json()["conversation_uuid"]
+        self.outbound_uuid_to_booking[uuid] = booking_id
 
     def __generate_jwt(self):
         return jwt.encode(
@@ -154,11 +155,11 @@ class NCCOServer():
             algorithm = 'RS256')
 
     @hug.object.get('/remind/start')
-    def remind_start_ncco(self, body = None, request = None):
+    def remind_start_ncco(self, conversation_uuid = None):
         print(str(self.outbound_uuid_to_booking))
         print(str(request))
-        print(str(body))
-        booking_id = self.outbound_uuid_to_booking(body["uuid"])
+        print(str(conversation_uuid))
+        booking_id = self.outbound_uuid_to_booking(conversation_uuid)
         time = self.booking_service.find(booking_id)[0]
         return [{
             "action": "talk",
