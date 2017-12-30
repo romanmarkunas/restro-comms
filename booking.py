@@ -64,6 +64,7 @@ class Tables():
     def find_booking_by_id(self, booking_id):
         for slot, booking in enumerate(self.table1):
             if booking != None and booking.id == booking_id:
+                print("Found booking in slot: " + str(slot))
                 return (slot, booking)
         for slot, booking in enumerate(self.table2):
             if booking != None and booking.id == booking_id:
