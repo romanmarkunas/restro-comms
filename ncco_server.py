@@ -100,8 +100,9 @@ class NCCOServer():
             print(uuid)
             customer_number = self.uuid_to_lvn[uuid]
             print(customer_number)
-            result = self.booking_service.cancel(customer_number)
-            print(result)
+            results = self.booking_service.find_bookings(customer_number)
+            print(results)
+            self.booking_service.cancel(results[0].id)
             demo_api_key = os.environ["DEMO_API_KEY"]
             demo_api_secret = os.environ["DEMO_API_SECRET"]
             client = nexmo.Client(key=demo_api_key, secret=demo_api_secret)

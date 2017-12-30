@@ -92,6 +92,9 @@ class BookingService():
                 available.append(booking)
         return available
 
+    def find_bookings(self, customer_number):
+        return self.tables.find_bookings(customer_number)
+
     def __sort_slot_closer_to_init(self, bookings, initial_slot):
         bookings.sort(key = lambda t: abs(t[0] - initial_slot))
 
