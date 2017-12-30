@@ -1,6 +1,8 @@
 """Contains all data structures concerning booking"""
 
 # TODO - make all these thread-safe, Booking must be immutable
+# TODO - split Tables into Table and Tables
+# TODO - there is assumption that only one LVN can appear in all bookings
 
 class Booking():
     """Data class, representing single table booking"""
@@ -45,13 +47,19 @@ class Tables():
         else:
             self.table2[slot] = booking
 
-    def cancel_booking(self, slot, booking_id = -1, customer_number = -1):
-        cancelled_booking1 = self.__cancel_if_match(self.table1, slot, booking_id, customer_number)
-        cancelled_booking2 = self.__cancel_if_match(self.table2, slot, booking_id, customer_number)
+    def cancel_booking(self, slot, customer_number):
+        cancelled_booking1 = self.__cancel_if_match(self.table1, slot, customer_number)
+        cancelled_booking2 = self.__cancel_if_match(self.table2, slot, customer_number)
         if cancelled_booking1 != None:
             return cancelled_booking1
         else:
             return cancelled_booking2
+
+    def find_booking_slots(self, customer_number):
+        slots1 = self.__do_find(self.table1, customer_number)
+        slots2 = self.__do_find(self.table2, customer_number)
+        in_2_not_in_1 = set(slots2) - set(slots1)
+        return slots1 + list(in_2_not_in_1)
 
     def get_tables(self):
         return [tuple(self.table1), tuple(self.table2)]
@@ -59,19 +67,23 @@ class Tables():
     def __free(self, table, slot):
         return table[slot] == None
 
-    def __cancel_if_match(self, table, slot, booking_id, customer_number):
-        if booking_id != -1 and booking_id == table[slot].id:
-            cancelled_booking = self.__do_cancel(table, slot)
-        elif customer_number != -1 and customer_number == table[slot].customer_number:
-            cancelled_booking = self.__do_cancel(table, slot)
+    def __cancel_if_match(self, table, slot, customer_number):
+        if customer_number == table[slot].customer_number:
+            return self.__do_cancel(table, slot)
         else:
-            cancelled_booking = None
-        return cancelled_booking
+            return None
 
     def __do_cancel(self, table, slot):
         cancelled_booking = table[slot]
         table[slot] = None
         return cancelled_booking
+
+    def __do_find(self, table, customer_number):
+        slots = []
+        for slot, booking in enumerate(table):
+            if booking != None and booking.customer_number == customer_number
+                slots.append(slot)
+        return slots
 
 class WaitList():
     """List of bookings which may only be populated from end, but any item can
