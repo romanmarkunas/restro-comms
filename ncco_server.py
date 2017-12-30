@@ -174,7 +174,7 @@ class NCCOServer():
     @hug.object.post('/remind/input')
     def remind_input_response(self, body = None):
         dtmf = body["dtmf"]
-        uuid = body["uuid"]
+        uuid = body["conversation_uuid"]
         if dtmf == "1":
             return [{
                 "action": "talk",
@@ -184,10 +184,12 @@ class NCCOServer():
         elif dtmf == "2":
             booking_id = self.outbound_uuid_to_booking(uuid)
             return [{
-                ""
+                "action": "talk",
+                "voiceName": "Russell",
+                "text": "Thanks! Your booking has been cancelled"
             }]
         else:
-            return self.remind_start_ncco({ "uuid": uuid })
+            return self.remind_start_ncco(uuid)
 
     @hug.object.post('/event')
     def event_handler(self, request=None, body=None):
