@@ -93,7 +93,7 @@ class NCCOServer():
                     "eventUrl": ["http://" + self.domain + "/ncco/input/booking"]
                 }
             ]
-        elif dtmf == "2
+        elif dtmf == "2"
             uuid = body["uuid"]
             return [
                 {
