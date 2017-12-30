@@ -162,7 +162,7 @@ class NCCOServer():
             "voiceName": "Russell",
             "text": "Hi, this is book two tables. Just checking you are still" +
                     " OK for your reservation at " + time + " hours? " +
-                    "Press 1 for yes or 2 to cancel.",
+                    "Press 1 for yes, 2 for cancel or any other key to repeat.",
             "bargeIn": True
         },
         {
@@ -171,18 +171,22 @@ class NCCOServer():
         }]
 
     @hug.object.post('/remind/input')
-    def remind_input_response(self, body=None):
+    def remind_input_response(self, body = None):
         dtmf = body["dtmf"]
+        uuid = body["uuid"]
         if dtmf == "1":
-            return [
-                {
-                    "action": "talk",
-                    "voiceName": "Russell",
-                    "text": "Cool, look forward to seeing you soon.",
-                }
-            ]
-        # else:
-        #     # do cancel stuff
+            return [{
+                "action": "talk",
+                "voiceName": "Russell",
+                "text": "Cool, looking forward to see you soon.",
+            }]
+        elif dtmf == "2":
+            booking_id = self.outbound_uuid_to_booking(uuid)5
+            return [{
+                ""
+            }]
+        else:
+            return self.remind_start_ncco({ "uuid": uuid })
 
     @hug.object.post('/event')
     def event_handler(self, request=None, body=None):
