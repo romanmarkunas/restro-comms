@@ -97,7 +97,9 @@ class NCCOServer():
             ]
         elif dtmf == "2":
             uuid = body["uuid"]
+            print(uuid)
             customer_number = self.uuid_to_lvn[uuid]
+            print(customer_number)
             result = self.booking_service.cancel(customer_number)
             print(result)
             demo_api_key = os.environ["DEMO_API_KEY"]
