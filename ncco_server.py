@@ -139,17 +139,14 @@ class NCCOServer():
         })
 
     def __generate_jwt(self):
-        application_private_key = os.environ["PRIVATE_KEY"]
-        token_payload = {
-            "iat": calendar.timegm(datetime.utcnow().utctimetuple()),
-            "application_id": NCCOServer.APPLICATION_ID,
-            "jti": urlsafe_b64encode(os.urandom(64)).decode('utf-8')
-        }
-
         return jwt.encode(
-            claims=token_payload,
-            key=application_private_key,
-            algorithm='RS256')
+            claims = {
+                "iat": calendar.timegm(datetime.utcnow().utctimetuple()),
+                "application_id": NCCOServer.APPLICATION_ID,
+                "jti": urlsafe_b64encode(os.urandom(64)).decode('utf-8')
+            },
+            key = os.environ["PRIVATE_KEY"],
+            algorithm = 'RS256')
 
     @hug.object.get('/remind')
     def remind_call_ncco(self):
