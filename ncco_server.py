@@ -123,7 +123,7 @@ class NCCOServer():
             ]
 
     @hug.object.post('/remind/trigger')
-    def remind_trigger_call(self, body=None):
+    def remind_trigger_call(self, body = None):
         booking_id = int(body["id"])
         booking = self.booking_service.find(booking_id)[1]
         response = requests.post(
@@ -138,7 +138,7 @@ class NCCOServer():
                     "type": "phone",
                     "number": "447418397022"
                 },
-                "answer_url": ["http://" + self.domain + "/remind"],
+                "answer_url": ["http://" + self.domain + "/remind/start"],
                 "event_url": ["http://" + self.domain + "/event"]
               })
         self.outbound_uuid_to_booking[response.json()["uuid"]] = booking_id
@@ -153,20 +153,22 @@ class NCCOServer():
             key = os.environ["PRIVATE_KEY"],
             algorithm = 'RS256')
 
-    @hug.object.get('/remind')
-    def remind_call_ncco(self):
-        return [
-            {
-                "action": "talk",
-                "voiceName": "Russell",
-                "text": "Hi, this is Nexmo restaurant. We are just checking you are still ok for your reservation on HOURS, press 1 for yes or 2 to cancel?",
-                "bargeIn": True
-            },
-            {
-                "action": "input",
-                "eventUrl": ["http://" + self.domain + "/remind/input"]
-            }
-        ]
+    @hug.object.get('/remind/start')
+    def remind_start_ncco(self, body = None):
+        booking_id = self.outbound_uuid_to_booking(body["uuid"])
+        time = self.booking_service.find(booking_id[0]
+        return [{
+            "action": "talk",
+            "voiceName": "Russell",
+            "text": "Hi, this is book two tables. Just checking you are still" +
+                    " OK for your reservation at " + time + " hours? " +
+                    "Press 1 for yes or 2 to cancel.",
+            "bargeIn": True
+        },
+        {
+            "action": "input",
+            "eventUrl": ["http://" + self.domain + "/remind/input"]
+        }]
 
     @hug.object.post('/remind/input')
     def remind_input_response(self, body=None):

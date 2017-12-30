@@ -28,7 +28,8 @@ class BookingService():
             return False
 
     def find(self, booking_id):
-        return self.tables.find_booking_by_id(booking_id)
+        booking_tuple = self.tables.find_booking_by_id(booking_id)
+        return tuple(self.__slot_to_hour(booking_tuple[0], booking_tuple[1]))
 
     def cancel(self, customer_number):
         """Returns tuple with slot and cancelled booking if cancellation is
@@ -63,6 +64,9 @@ class BookingService():
 
     def __hour_to_slot(self, hour):
         return hour - 12
+
+    def __slot_to_hour(self, slot):
+        return slot + 12
 
     def __generate_alternatives(self, slot, booking):
         current_pax = booking.pax
