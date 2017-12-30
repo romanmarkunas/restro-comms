@@ -124,19 +124,23 @@ class NCCOServer():
     @hug.object.post('/remind/trigger')
     def remind_trigger_call(self, body=None):
         booking_id = body["id"]
-        requests.post("https://api.nexmo.com/v1/calls", headers={"Authorization": "Bearer " + self.__generate_jwt()}, json={
-            "to": [{
-                "type": "phone",
-                # "number": "447718650656"
-                "number": "447426007676"
-              }],
-              "from": {
-                "type": "phone",
-                "number": "447418397022"
-              },
-              "answer_url": ["http://" + self.domain + "/remind"],
-              "event_url": ["http://" + self.domain + "/event"]
-        })
+        booking = self.booking_service.find(booking_id)[1]
+        r = requests.post("https://api.nexmo.com/v1/calls",
+                      headers = { "Authorization": "Bearer " + self.__generate_jwt() },
+                      json = {
+                        "to": [{
+                            "type": "phone",
+                            "number": str(booking.customer_number)
+                        }],
+                        "from": {
+                            "type": "phone",
+                            "number": "447418397022"
+                        },
+                        "answer_url": ["http://" + self.domain + "/remind"],
+                        "event_url": ["http://" + self.domain + "/event"]
+                      }) # would be easier if this already returned generate uuid
+        print(str(r.json()))
+        print(str(r.text()))
 
     def __generate_jwt(self):
         return jwt.encode(
