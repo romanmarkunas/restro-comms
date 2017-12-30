@@ -52,7 +52,7 @@
       var text = document.createTextNode("Remind")
       button.appendChild(text)
       button.addEventListener("click", function() {
-        $.post("../trigger-remind", { id: bookingId }, "json");
+        $.post("../remind/trigger", { id: bookingId }, "json");
       });
       return button;
     }

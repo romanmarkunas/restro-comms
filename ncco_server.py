@@ -121,8 +121,8 @@ class NCCOServer():
                 }
             ]
 
-    @hug.object.post('/trigger-remind')
-    def make_remind_call(self, body=None):
+    @hug.object.post('/remind/trigger')
+    def remind_trigger_call(self, body=None):
         booking_id = body["id"]
         requests.post("https://api.nexmo.com/v1/calls", headers={"Authorization": "Bearer " + self.__generate_jwt()}, json={
             "to": [{
