@@ -101,6 +101,7 @@ class NCCOServer():
                     "voiceName": "Russell",
                     "text": "This feature is not ready! No way back, man!"
                 }
+            ]
 
     @hug.object.post('/ncco/input/booking')
     def ncco_input_booking_response(self, body=None):
