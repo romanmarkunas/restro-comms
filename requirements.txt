@@ -1,4 +1,4 @@
 python-jose==1.4.0
 gunicorn==19.4.5
 hug==2.3.2
-nexmo==0.3.10
+nexmo==2.0.0
