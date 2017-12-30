@@ -27,6 +27,9 @@ class BookingService():
             self.__copy_list(alt, alternatives)
             return False
 
+    def find(self, booking_id):
+        return self.tables.find_booking_by_id(booking_id)
+
     def cancel(self, customer_number):
         """Returns tuple with slot and cancelled booking if cancellation is
         successful, otherwise returns None"""

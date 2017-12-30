@@ -1,7 +1,7 @@
 """This endpoint will serve NCCO objects required by Nexmo VAPI"""
 
 import hug
-import uuid
+import uuid as uuid_generator
 import requests
 from booking_service import BookingService
 from datetime import datetime
@@ -122,23 +122,21 @@ class NCCOServer():
             ]
 
     @hug.object.post('/trigger-remind')
-    def make_remind_call(self, body=None, id_="somebooking"):
-        print(str(body))
-        print(id_)
-
-        # requests.post("https://api.nexmo.com/v1/calls", headers={"Authorization": "Bearer " + self.__generate_jwt()}, json={
-        #     "to": [{
-        #         "type": "phone",
-        #         # "number": "447718650656"
-        #         "number": "447426007676"
-        #       }],
-        #       "from": {
-        #         "type": "phone",
-        #         "number": "447418397022"
-        #       },
-        #       "answer_url": ["http://" + self.domain + "/remind"],
-        #       "event_url": ["http://" + self.domain + "/event"]
-        # })
+    def make_remind_call(self, body=None):
+        booking_id = body["id"]
+        requests.post("https://api.nexmo.com/v1/calls", headers={"Authorization": "Bearer " + self.__generate_jwt()}, json={
+            "to": [{
+                "type": "phone",
+                # "number": "447718650656"
+                "number": "447426007676"
+              }],
+              "from": {
+                "type": "phone",
+                "number": "447418397022"
+              },
+              "answer_url": ["http://" + self.domain + "/remind"],
+              "event_url": ["http://" + self.domain + "/event"]
+        })
 
     def __generate_jwt(self):
         application_private_key = os.environ["PRIVATE_KEY"]

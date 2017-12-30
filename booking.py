@@ -61,6 +61,14 @@ class Tables():
         in_2_not_in_1 = set(slots2) - set(slots1)
         return slots1 + list(in_2_not_in_1)
 
+    def find_booking_by_id(self, booking_id):
+        for slot, booking in enumerate(self.table1):
+            if booking != None and booking.id == booking_id:
+                return (slot, booking)
+        for slot, booking in enumerate(self.table2):
+            if booking != None and booking.id == booking_id:
+                return (slot, booking)
+
     def get_tables(self):
         return [tuple(self.table1), tuple(self.table2)]
 
