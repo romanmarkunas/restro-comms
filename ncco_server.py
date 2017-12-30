@@ -109,7 +109,7 @@ class NCCOServer():
         booking_time = int(body["dtmf"])
         customer_number = self.uuid_to_lvn[uuid]
         alternatives = []
-        print("Booking table @" + booking_time + " for LVN " + customer_number)
+        print("Booking table @" + str(booking_time) + " for LVN " + str(customer_number))
         result = self.booking_service.book(hour=booking_time, pax=4, alternatives=alternatives, customer_number=customer_number)
 
         if result:
