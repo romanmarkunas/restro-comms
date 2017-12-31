@@ -26,10 +26,26 @@ class NCCOServer():
     def start_call(self, request = None):
         print(str(request.get_param("from")))
         internal_ivr_connection = request.get_param("from") == self.lvn
+        print(str(internal_ivr_connections))
         return [{
             "action": "talk",
             "text": "We are connecting you to Nexmo restaurant. Please hold on"
         },
+        {
+            "action": "connect",
+            "endpoint": [
+                {
+                    "content-type": "audio/l16;rate=16000",
+                    "headers": {
+                        "aws_key": "AKIAJQ3CX2DGX64WONXQ",
+                        "aws_secret": "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"
+                    },
+                    "type": "websocket",
+                    "uri": "wss://lex-eu-west-1.nexmo.com/bot/BookTwoTables/alias/BookBot_no_cancel/user/BookTwoTables/content"
+                }
+            ],
+            "eventUrl": [self.domain + "/event"]
+        }
         # {
         #     "action": "talk",
         #     "text": ("Thanks for calling Nexmo restaurant. I am Russell, your "
@@ -50,21 +66,7 @@ class NCCOServer():
             #     # Music: https://www.bensound.com
             #     "musicOnHoldUrl" : [ self.domain + "/hold-tune" ]
             # }
-            # {
-            #     "action": "connect",
-            #     "endpoint": [
-            #         {
-            #             "content-type": "audio/l16;rate=16000",
-            #             "headers": {
-            #                 "aws_key": "AKIAJQ3CX2DGX64WONXQ",
-            #                 "aws_secret": "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"
-            #             },
-            #             "type": "websocket",
-            #             "uri": "wss://lex-us-east-1.nexmo.com/bot/BookTwoTables/alias/BookBot_no_cancel/user/BookTwoTables/content"
-            #         }
-            #     ],
-            #     "eventUrl": ["http://" + self.domain + "/event"]
-            # }
+
         ]
 
     # def ivr(self):
