@@ -6,6 +6,7 @@ import requests
 from booking_service import BookingService
 from datetime import datetime
 from base64 import urlsafe_b64encode
+from threading import Thread
 import os
 import nexmo
 import calendar
@@ -103,6 +104,9 @@ class NCCOServer():
 
             NCCOServer.send_cancel_sms(customer_number)
 
+            t = Thread(target=self.call_next_customer_in_waiting_list)
+            t.start()
+
             return [
                 {
                     "action": "talk",
@@ -121,6 +125,10 @@ class NCCOServer():
             'to': customer_number,
             'text': 'Your booking has been successfully cancelled.',
         })
+
+    def call_next_customer_in_waiting_list(self):
+        print("we made it!")
+
 
     @hug.object.post('/ncco/input/booking')
     def ncco_input_booking_response(self, body=None):

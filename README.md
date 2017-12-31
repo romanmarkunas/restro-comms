@@ -31,3 +31,11 @@ Deployment
 
 Nexmo quirks:
 1) answer url w/o protocol, e.g. "http://" gives no error, but fails during call
+
+Environment variables:
+
+You will need to have the following environment variables set:
+
+DEMO_API_KEY
+DEMO_API_SECRET
+PRIVATE_KEY
