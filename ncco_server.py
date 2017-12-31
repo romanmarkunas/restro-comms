@@ -23,18 +23,26 @@ class NCCOServer():
         self.outbound_uuid_to_booking = {}
 
     @hug.object.get('/ncco')
-    def start_call(self):
-        return [
-            {
-                "action" : "talk",
-                "text" : "Thanks for calling Nexmo restaurant. Please select from the following options, 1 for booking or 2 for cancelling.",
-                "voiceName": "Russell",
-                "bargeIn": True
-            },
-            {
-                "action": "input",
-                "eventUrl": [self.domain + "/ncco/input"]
-            }
+    def start_call(self, request = None):
+        print(str(request))
+        print(dir(request))
+        # internal_ivr_connection = (request.params)
+        return [{
+            "action": "talk",
+            "text": "We are connecting you to Nexmo restaurant. Please hold on"
+        },
+        # {
+        #     "action": "talk",
+        #     "text": ("Thanks for calling Nexmo restaurant. I am Russell, your "
+        #              "booking assistant. You can also type 9 9 and hashkey to "
+        #              "speak with real person. How can I help?"),
+        #     "voiceName": "Russell",
+        #     "bargeIn": True
+        # },
+        #     {
+        #         "action": "input",
+        #         "eventUrl": [self.domain + "/ncco/input"]
+        #     }
 
             # {
             #     "action" : "conversation",
