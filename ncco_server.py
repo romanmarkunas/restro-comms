@@ -79,7 +79,7 @@ class NCCOServer():
     #     }]
 
     @hug.object.post('/ncco/input')
-    def ncco_input_response(self, body=None):
+    def ncco_input_response(self, body=None, response=None):
         dtmf = body["dtmf"]
         if dtmf == "1":
             return [
