@@ -17,7 +17,7 @@ class NCCOServer():
 
     def __init__(self):
         self.lvn = "447418397022"
-        self.domain = "booktwotables.herokuapp.com"
+        self.domain = "http://booktwotables.herokuapp.com"
         self.booking_service = BookingService()
         self.uuid_to_lvn = {}
         self.outbound_uuid_to_booking = {}
@@ -33,7 +33,7 @@ class NCCOServer():
             },
             {
                 "action": "input",
-                "eventUrl": ["http://" + self.domain + "/ncco/input"]
+                "eventUrl": [self.domain + "/ncco/input"]
             }
 
             # {
@@ -92,7 +92,7 @@ class NCCOServer():
                     "action": "input",
                     "submitOnHash": True,
                     "timeOut": 10,
-                    "eventUrl": ["http://" + self.domain + "/ncco/input/booking"]
+                    "eventUrl": [self.domain + "/ncco/input/booking"]
                 }
             ]
         elif dtmf == "2":
@@ -157,8 +157,8 @@ class NCCOServer():
                     "type": "phone",
                     "number": self.lvn
                 },
-                "answer_url": ["http://" + self.domain + "/remind/start"],
-                "event_url": ["http://" + self.domain + "/event"]
+                "answer_url": [self.domain + "/remind/start"],
+                "event_url": [self.domain + "/event"]
               })
         uuid = response.json()["conversation_uuid"]
         self.outbound_uuid_to_booking[uuid] = booking_id
@@ -187,7 +187,7 @@ class NCCOServer():
         },
         {
             "action": "input",
-            "eventUrl": ["http://" + self.domain + "/remind/input"]
+            "eventUrl": [self.domain + "/remind/input"]
         }]
 
     @hug.object.post('/remind/input')
