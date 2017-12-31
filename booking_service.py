@@ -19,7 +19,7 @@ class BookingService():
         slot = self.__hour_to_slot(hour)
         initial_booking = Booking(customer_number, pax)
 
-        if (self.tables.check_available(slot, initial_booking)):
+        if self.tables.check_available(slot, initial_booking):
             self.tables.book(slot, initial_booking)
             return True
         else:
@@ -29,17 +29,14 @@ class BookingService():
 
     def find(self, booking_id):
         booking_tuple = self.tables.find_booking_by_id(booking_id)
-        return (self.__slot_to_hour(booking_tuple[0]), booking_tuple[1])
+        return self.__slot_to_hour(booking_tuple[0]), booking_tuple[1]
 
     def cancel(self, booking_id):
         """Returns tuple with slot and cancelled booking if cancellation is
         successful, otherwise returns None"""
 
         booking_tuple = self.tables.cancel_booking(booking_id)
-        for item in booking_tuple:
-            print("A tuple: ", item)
-        # print("booking_tuple" + booking_tuple)
-        # return self.__slot_to_hour(booking_tuple[0]), booking_tuple[1]
+        return self.__slot_to_hour(booking_tuple[0]), booking_tuple[1]
 
     def put_to_wait(self, hour, pax, customer_number):
         slot = self.__hour_to_slot(hour)

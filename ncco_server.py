@@ -96,21 +96,14 @@ class NCCOServer():
                 }
             ]
         elif dtmf == "2":
-            uuid = body["uuid"]
-            print(uuid)
-            customer_number = self.uuid_to_lvn[uuid]
-            print(customer_number)
-            results = self.booking_service.find_bookings(customer_number)
-            print(results)
-            self.booking_service.cancel(results[0][1].id)
-            demo_api_key = os.environ["DEMO_API_KEY"]
-            demo_api_secret = os.environ["DEMO_API_SECRET"]
-            client = nexmo.Client(key=demo_api_key, secret=demo_api_secret)
-            client.send_message({
-                'from': 'Nexmo restaurant',
-                'to': customer_number,
-                'text': 'Your booking has been successfully cancelled.',
-            })
+            customer_number = self.uuid_to_lvn[body["uuid"]]
+            cancellable_results = self.booking_service.find_bookings(customer_number)
+            # Currently we will always cancel the first booking.
+            cancelled_results = self.booking_service.cancel(cancellable_results[0][1].id)
+            print("Cancelled booking for " + customer_number + " at " + cancelled_results[0])
+
+            NCCOServer.send_cancel_sms(customer_number)
+
             return [
                 {
                     "action": "talk",
@@ -118,6 +111,17 @@ class NCCOServer():
                     "text": "We're sorry to hear you are cancelling, an SMS has been sent to confirm we have cancelled your booking."
                 }
             ]
+
+    @staticmethod
+    def send_cancel_sms(customer_number):
+        demo_api_key = os.environ["DEMO_API_KEY"]
+        demo_api_secret = os.environ["DEMO_API_SECRET"]
+        client = nexmo.Client(key=demo_api_key, secret=demo_api_secret)
+        client.send_message({
+            'from': 'Nexmo restaurant',
+            'to': customer_number,
+            'text': 'Your booking has been successfully cancelled.',
+        })
 
     @hug.object.post('/ncco/input/booking')
     def ncco_input_booking_response(self, body=None):
