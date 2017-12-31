@@ -99,8 +99,7 @@ class NCCOServer():
             customer_number = self.uuid_to_lvn[body["uuid"]]
             cancellable_results = self.booking_service.find_bookings(customer_number)
             # Currently we will always cancel the first booking.
-            cancelled_results = self.booking_service.cancel(cancellable_results[0][1].id)
-            print("Cancelled booking for " + customer_number + " at " + cancelled_results[0])
+            self.booking_service.cancel(cancellable_results[0][1].id)
 
             NCCOServer.send_cancel_sms(customer_number)
 
