@@ -7,7 +7,7 @@
 class Booking():
     """Data class, representing single table booking"""
 
-    last_used_id = 0;
+    last_used_id = 0
 
     def __init__(self, customer_number, pax):
         Booking.last_used_id += 1

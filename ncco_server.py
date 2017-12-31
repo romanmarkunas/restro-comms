@@ -7,6 +7,7 @@ from booking_service import BookingService
 from datetime import datetime
 from base64 import urlsafe_b64encode
 import os
+import nexmo
 import calendar
 from jose import jwt
 
@@ -15,6 +16,7 @@ class NCCOServer():
     APPLICATION_ID = "b75f58ba-f8ee-47fb-b0d0-a47ab23143c0"
 
     def __init__(self):
+        self.lvn = "447418397022"
         self.domain = "booktwotables.herokuapp.com"
         self.booking_service = BookingService()
         self.uuid_to_lvn = {}
@@ -94,14 +96,31 @@ class NCCOServer():
                 }
             ]
         elif dtmf == "2":
-            uuid = body["uuid"]
+            customer_number = self.uuid_to_lvn[body["uuid"]]
+            cancellable_results = self.booking_service.find_bookings(customer_number)
+            # Currently we will always cancel the first booking.
+            self.booking_service.cancel(cancellable_results[0][1].id)
+
+            NCCOServer.send_cancel_sms(customer_number)
+
             return [
                 {
                     "action": "talk",
                     "voiceName": "Russell",
-                    "text": "This feature is not ready! No way back, man!"
+                    "text": "We're sorry to hear you are cancelling, an SMS has been sent to confirm we have cancelled your booking."
                 }
             ]
+
+    @staticmethod
+    def send_cancel_sms(customer_number):
+        demo_api_key = os.environ["DEMO_API_KEY"]
+        demo_api_secret = os.environ["DEMO_API_SECRET"]
+        client = nexmo.Client(key=demo_api_key, secret=demo_api_secret)
+        client.send_message({
+            'from': 'Nexmo restaurant',
+            'to': customer_number,
+            'text': 'Your booking has been successfully cancelled.',
+        })
 
     @hug.object.post('/ncco/input/booking')
     def ncco_input_booking_response(self, body=None):
@@ -136,7 +155,7 @@ class NCCOServer():
                 }],
                 "from": {
                     "type": "phone",
-                    "number": "447418397022"
+                    "number": self.lvn
                 },
                 "answer_url": ["http://" + self.domain + "/remind/start"],
                 "event_url": ["http://" + self.domain + "/event"]
