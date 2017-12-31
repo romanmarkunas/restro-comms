@@ -37,11 +37,11 @@ class NCCOServer():
                 {
                     "content-type": "audio/l16;rate=16000",
                     "headers": {
-                        "aws_key": "AKIAJQ3CX2DGX64WONXQ",
-                        "aws_secret": "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"
+                        "aws_key": str(os.environ["NEXMO_AWS_KEY"]),
+                        "aws_secret": str(os.environ["NEXMO_AWS_SECRET"])
                     },
                     "type": "websocket",
-                    "uri": "wss://lex-us-east-1.nexmo.com/bot/BookTwoTables/alias/BookBot_no_cancel/user/BookTwoTables/content"
+                    "uri": "wss://lex-us-east-1.nexmo.com/bot/BookTwoTables/alias/$LATEST/user/nexmo/content"
                 }
             ],
             "eventUrl": [self.domain + "/event"]
