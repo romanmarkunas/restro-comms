@@ -26,7 +26,7 @@ class NCCOServer():
     def start_call(self, request = None):
         print(str(request.get_param("from")))
         internal_ivr_connection = request.get_param("from") == self.lvn
-        print(str(internal_ivr_connections))
+        print(str(internal_ivr_connection))
         return [{
             "action": "talk",
             "text": "We are connecting you to Nexmo restaurant. Please hold on"
