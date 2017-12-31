@@ -41,7 +41,7 @@ class NCCOServer():
                         "aws_secret": "+8OFk/huqXOa4Pkas/mM97NVlLe9KcjqrOkA5kSY"
                     },
                     "type": "websocket",
-                    "uri": "wss://lex-eu-west-1.nexmo.com/bot/BookTwoTables/alias/BookBot_no_cancel/user/BookTwoTables/content"
+                    "uri": "wss://lex-us-east-1.nexmo.com/bot/BookTwoTables/alias/BookBot_no_cancel/user/BookTwoTables/content"
                 }
             ],
             "eventUrl": [self.domain + "/event"]
