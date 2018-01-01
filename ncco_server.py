@@ -261,8 +261,8 @@ class NCCOServer():
         print("received event! : " + str(body) + str(request))
         try:
             self.uuid_to_lvn[body["uuid"]] = body["from"]
-        except Exception, e:
-            print(repr(e))
+        except KeyError:
+            print("From value not present in event")
 
     # @hug.object.post('/blah/outbound')
     # def event_handler(self, request=None, body=None):
