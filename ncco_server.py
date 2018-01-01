@@ -91,8 +91,8 @@ class NCCOServer():
                     "voiceName": "Russell",
                     "text": "We're sorry to hear you are cancelling your reservation " \
                             "for" + str(cancellable_results[0][0]) + " pm, an SMS " \
-                                                                     "has been sent to confirm we have cancelled your booking, but we hope to " \
-                                                                     "see you real soon" + NCCOServer.SIGN_OFF
+                            "has been sent to confirm we have cancelled your booking, but we hope to " \
+                             "see you real soon" + NCCOServer.SIGN_OFF
                 }
             ]
 
@@ -143,7 +143,7 @@ class NCCOServer():
                 "voiceName": "Russell",
                 "text": "Hi there it's Two Tables with tremendous news, a booking slot " \
                         "for " + str(waiting_slot_booking[0]) + "pm has become free, " \
-                                                                "press 1 to accept or 2 to remove yourself from the waiting list?",
+                        "press 1 to accept or 2 to remove yourself from the waiting list?",
                 "bargeIn": True
             },
             {
@@ -174,7 +174,7 @@ class NCCOServer():
                     "action": "talk",
                     "voiceName": "Russell",
                     "text": "Stupendous, you booking for " + str(slot_booking[0]) + " pm has been confirmed, " \
-                                                                                    "we look forward to seeing you soon" + NCCOServer.SIGN_OFF
+                            "we look forward to seeing you soon" + NCCOServer.SIGN_OFF
                 }
             ]
 
@@ -206,7 +206,8 @@ class NCCOServer():
                     "action": "talk",
                     "voiceName": "Russell",
                     "text": "Fantastic, your booking has been successful, we'll " \
-                            "see you at " + str(booking_time) + " pm. Thank you good bye."
+                            "see you at " + str(self.booking_service.hour_to_slot(booking_time)) + " pm. "\
+                            "Thank you good bye."
                 }
             ]
         else:
@@ -217,7 +218,8 @@ class NCCOServer():
                 {
                     "action": "talk",
                     "voiceName": "Russell",
-                    "text": "We're deeply saddened but this time at " + str(booking_time) + " pm is currently " \
+                    "text": "We're deeply saddened but this time "\
+                            "at " + str(self.booking_service.hour_to_slot(booking_time)) + " pm is currently " \
                             "full, you've been added to the waiting list and we'll call you immediately once the " \
                             "slot becomes free" + NCCOServer.SIGN_OFF
                 }

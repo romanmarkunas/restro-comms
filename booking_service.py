@@ -60,7 +60,7 @@ class BookingService():
     def clear_bookings(self):
         self.__init__()
 
-    def __hour_to_slot(self, hour):
+    def hour_to_slot(self, hour):
         return hour - 12
 
     def slot_to_hour(self, slot):
