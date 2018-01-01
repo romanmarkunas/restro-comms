@@ -7,9 +7,6 @@ class BookingService():
         self.tables = Tables()
         self.wait_list = WaitList()
 
-    def book(self, slot, booking):
-        self.book(slot, booking.pax, booking.customer_number)
-
     def book(self, hour, pax, customer_number, alternatives):
         """Returns true if booking was successful, otherwise returns false and
         populates alternatives list with alternative free bookings

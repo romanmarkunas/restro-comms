@@ -119,7 +119,6 @@ class NCCOServer():
             },
             {
                 "action": "input",
-                "timeOut": 10,
                 "eventUrl": ["http://" + self.domain + "/ncco/input/waiting-list/booking/input"]
             }
         ]
@@ -129,6 +128,7 @@ class NCCOServer():
         dtmf = body["dtmf"]
         uuid = body["uuid"]
         if dtmf == "1":
+            alternatives = []
             booking_id = self.outbound_uuid_to_booking[uuid]
             self.outbound_uuid_to_booking.pop(uuid, None)
             wait_list = self.booking_service.get_wait_list()
@@ -137,7 +137,7 @@ class NCCOServer():
                 customer_waiting_slot = self.booking_service.slot_to_hour(customer_waiting[0])
                 customer_waiting_booking = customer_waiting[1]
                 if customer_waiting_booking.id == booking_id:
-                    self.booking_service.book(customer_waiting_slot, customer_waiting_booking)
+                    self.booking_service.book(customer_waiting_slot, 4, customer_waiting_booking.customer_number, alternatives)
                     return [
                         {
                             "action": "talk",
