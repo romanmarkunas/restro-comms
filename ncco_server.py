@@ -86,7 +86,7 @@ class NCCOServer():
             'text': text,
         })
 
-    def call_next_customer_in_waiting_list(self, freed_up_slot_in_correct_format):
+    def call_waiting_customers(self, freed_up_slot_in_correct_format):
         wait_list = self.booking_service.get_wait_list()
         for customer_waiting in wait_list:
             customer_waiting_slot_in_correct_format = self.booking_service.slot_to_hour(customer_waiting[0])
