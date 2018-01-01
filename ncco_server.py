@@ -108,7 +108,7 @@ class NCCOServer():
                     uuid = response.json()["conversation_uuid"]
                     self.outbound_uuid_to_booking[uuid] = customer_waiting[1].id
 
-    @hug.object.post('/ncco/input/waiting-list/booking')
+    @hug.object.get('/ncco/input/waiting-list/booking')
     def ncco_input_waiting_list_booking(self):
         return [
             {
