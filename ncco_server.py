@@ -134,7 +134,7 @@ class NCCOServer():
         if dtmf == "1":
             alternatives = []
             customer_number = self.uuid_to_lvn[uuid]
-            booking_id = self.outbound_uuid_to_booking[customer_number]
+            booking_id = self.outbound_lvn_to_booking_id[customer_number]
             wait_list = self.booking_service.get_wait_list()
 
             for customer_waiting in wait_list:
