@@ -86,21 +86,18 @@ class NCCOServer():
             'text': text,
         })
 
-    def call_waiting_customers(self, free_slot_in_correct_format):
+    def call_next_customer_in_waiting_list(self, freed_up_slot_in_correct_format):
         wait_list = self.booking_service.get_wait_list()
         for customer_waiting in wait_list:
             customer_waiting_slot_in_correct_format = self.booking_service.slot_to_hour(customer_waiting[0])
-            if customer_waiting_slot_in_correct_format == free_slot_in_correct_format:
-                    customer_number = customer_waiting[1].customer_number
-                    booking_id = customer_waiting[1].id
-                    self.waiting_lvn_to_booking_id[customer_number] = booking_id
+            if customer_waiting_slot_in_correct_format == freed_up_slot_in_correct_format:
                     response = requests.post(
                         "https://api.nexmo.com/v1/calls",
                         headers={"Authorization": "Bearer " + self.__generate_jwt()},
                         json={
                             "to": [{
                                 "type": "phone",
-                                "number": str(customer_number)
+                                "number": str(customer_waiting[1].customer_number)
                             }],
                             "from": {
                                 "type": "phone",
@@ -110,8 +107,9 @@ class NCCOServer():
                             "event_url": ["http://" + self.domain + "/event"]
                         })
                     uuid = response.json()["conversation_uuid"]
-                    print("Waiting Customers booking ID: " + str(booking_id))
-                    print("Waiting customers UUID: " + uuid)
+                    print("Customers booking ID: " + str(customer_waiting[1].id))
+                    print("Customers UUID: " + uuid)
+                    self.outbound_uuid_to_booking[uuid] = customer_waiting[1].id
 
     @hug.object.get('/waiting/start')
     def start_waiting_call(self):
@@ -183,7 +181,7 @@ class NCCOServer():
             ]
         else:
             booking = self.booking_service.put_to_wait(hour=booking_time, pax=4, customer_number=customer_number)
-            # self.waiting_lvn_to_booking_id[customer_number] = booking.id
+            self.waiting_lvn_to_booking_id[customer_number] = booking.id
             return [
                 {
                     "action": "talk",
