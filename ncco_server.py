@@ -1,6 +1,7 @@
 """This endpoint will serve NCCO objects required by Nexmo VAPI"""
 
 import hug
+import uuid as uuid_generator
 import requests
 from booking_service import BookingService
 from datetime import datetime
@@ -259,12 +260,6 @@ class NCCOServer():
     def event_handler(self, request=None, body=None):
         print("received event! : " + str(body) + str(request))
         self.uuid_to_lvn[body["uuid"]] = body["from"]
-        # TODO 'from' isn't present on outbound call
-
-    @hug.object.post('/event/outbound')
-    def event_handler(self, request=None, body=None):
-        print("received outbound event! : " + str(body) + str(request))
-        # self.uuid_to_lvn[body["uuid"]] = body["from"]  # TODO 'from' isn't present on outbound call
 
     @hug.object.get('/tables')
     def tables(self):
