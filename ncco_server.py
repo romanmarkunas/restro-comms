@@ -106,6 +106,8 @@ class NCCOServer():
                             "event_url": ["http://" + self.domain + "/event"]
                         })
                     uuid = response.json()["conversation_uuid"]
+                    print("Customers booking ID: " + customer_waiting[1].id)
+                    print("Customers UUID: " + uuid)
                     self.outbound_uuid_to_booking[uuid] = customer_waiting[1].id
 
     @hug.object.get('/ncco/input/waiting-list/booking')
@@ -127,6 +129,7 @@ class NCCOServer():
     def ncco_input_waiting_list_booking_input(self, body=None):
         dtmf = body["dtmf"]
         uuid = body["uuid"]
+        print("Customers UUID for DTMF: " + uuid)
         if dtmf == "1":
             alternatives = []
             booking_id = self.outbound_uuid_to_booking[uuid]
@@ -259,14 +262,10 @@ class NCCOServer():
     @hug.object.post('/event')
     def event_handler(self, request=None, body=None):
         print("received event! : " + str(body) + str(request))
-        try:
+        if body["direction"] == "inbound":
             self.uuid_to_lvn[body["uuid"]] = body["from"]
-        except KeyError:
-            print("From value not present in event")
-
-    # @hug.object.post('/blah/outbound')
-    # def event_handler(self, request=None, body=None):
-    #     print("received event! : " + str(body) + str(request))
+        elif body["direction"] == "outbound":
+            self.uuid_to_lvn[body["uuid"]] = body["to"]
 
     @hug.object.get('/tables')
     def tables(self):
