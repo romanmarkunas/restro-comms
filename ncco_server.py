@@ -11,7 +11,6 @@ import os
 import nexmo
 import calendar
 from jose import jwt
-import json
 
 class NCCOServer():
 
@@ -104,7 +103,7 @@ class NCCOServer():
                                 "number": self.lvn
                             },
                             "answer_url": ["http://" + self.domain + "/ncco/input/waiting-list/booking"],
-                            "event_url": ["http://" + self.domain + "/event"]
+                            "event_url": ["http://" + self.domain + "/event/outbound"]
                         })
                     uuid = response.json()["conversation_uuid"]
                     self.outbound_uuid_to_booking[uuid] = customer_waiting[1].id
@@ -260,9 +259,11 @@ class NCCOServer():
     @hug.object.post('/event')
     def event_handler(self, request=None, body=None):
         print("received event! : " + str(body) + str(request))
-        data = json.loads(str(body))
-        if 'from' in data:
-            self.uuid_to_lvn[body["uuid"]] = body["from"]
+        self.uuid_to_lvn[body["uuid"]] = body["from"]
+
+    @hug.object.post('/event/outbound')
+    def event_handler(self, request=None, body=None):
+        print("received event! : " + str(body) + str(request))
 
     @hug.object.get('/tables')
     def tables(self):
