@@ -22,7 +22,7 @@ class NCCOServer():
         self.booking_service = BookingService()
         self.uuid_to_lvn = {}
         self.outbound_uuid_to_booking = {}
-        self.outbound_lvn_to_booking_id = {}
+        self.waiting_lvn_to_booking_id = {}
 
     @hug.object.get('/ncco')
     def start_call(self):
@@ -63,9 +63,9 @@ class NCCOServer():
             # Currently we will always cancel the first booking.
             self.booking_service.cancel(cancellable_results[0][1].id)
 
-            NCCOServer.send_cancel_sms(customer_number)
+            NCCOServer.send_sms(customer_number, "Your booking has been successfully cancelled.")
 
-            Thread(target=self.call_next_customer_in_waiting_list(self.booking_service.slot_to_hour(cancellable_results[0][0]))).start()
+            Thread(target=self.call_waiting_customers(self.booking_service.slot_to_hour(cancellable_results[0][0]))).start()
 
             return [
                 {
@@ -76,28 +76,31 @@ class NCCOServer():
             ]
 
     @staticmethod
-    def send_cancel_sms(customer_number):
+    def send_sms(customer_number, text):
         demo_api_key = os.environ["DEMO_API_KEY"]
         demo_api_secret = os.environ["DEMO_API_SECRET"]
         client = nexmo.Client(key=demo_api_key, secret=demo_api_secret)
         client.send_message({
             'from': 'Nexmo restaurant',
             'to': customer_number,
-            'text': 'Your booking has been successfully cancelled.',
+            'text': text,
         })
 
-    def call_next_customer_in_waiting_list(self, freed_up_slot_in_correct_format):
+    def call_waiting_customers(self, free_slot_in_correct_format):
         wait_list = self.booking_service.get_wait_list()
         for customer_waiting in wait_list:
             customer_waiting_slot_in_correct_format = self.booking_service.slot_to_hour(customer_waiting[0])
-            if customer_waiting_slot_in_correct_format == freed_up_slot_in_correct_format:
+            if customer_waiting_slot_in_correct_format == free_slot_in_correct_format:
+                    customer_number = customer_waiting[1].customer_number
+                    booking_id = customer_waiting[1].id
+                    self.waiting_lvn_to_booking_id[customer_number] = booking_id
                     response = requests.post(
                         "https://api.nexmo.com/v1/calls",
                         headers={"Authorization": "Bearer " + self.__generate_jwt()},
                         json={
                             "to": [{
                                 "type": "phone",
-                                "number": str(customer_waiting[1].customer_number)
+                                "number": str(customer_number)
                             }],
                             "from": {
                                 "type": "phone",
@@ -107,12 +110,11 @@ class NCCOServer():
                             "event_url": ["http://" + self.domain + "/event"]
                         })
                     uuid = response.json()["conversation_uuid"]
-                    print("Customers booking ID: " + str(customer_waiting[1].id))
-                    print("Customers UUID: " + uuid)
-                    self.outbound_uuid_to_booking[uuid] = customer_waiting[1].id
+                    print("Waiting Customers booking ID: " + str(booking_id))
+                    print("Waiting customers UUID: " + uuid)
 
-    @hug.object.get('/ncco/input/waiting-list/booking')
-    def ncco_input_waiting_list_booking(self):
+    @hug.object.get('/waiting/start')
+    def start_waiting_call(self):
         return [
             {
                 "action": "talk",
@@ -126,15 +128,15 @@ class NCCOServer():
             }
         ]
 
-    @hug.object.post('/ncco/input/waiting-list/booking/input')
-    def ncco_input_waiting_list_booking_input(self, body=None):
+    @hug.object.post('/waiting/input')
+    def waiting_call_input_response(self, body=None):
         dtmf = body["dtmf"]
         uuid = body["uuid"]
-        print("Customers UUID for DTMF: " + uuid)
+        print("Waiting customers UUID for DTMF: " + uuid)
         if dtmf == "1":
             alternatives = []
             customer_number = self.uuid_to_lvn[uuid]
-            booking_id = self.outbound_lvn_to_booking_id[customer_number]
+            booking_id = self.waiting_lvn_to_booking_id[customer_number]
             wait_list = self.booking_service.get_wait_list()
 
             for customer_waiting in wait_list:
@@ -181,7 +183,7 @@ class NCCOServer():
             ]
         else:
             booking = self.booking_service.put_to_wait(hour=booking_time, pax=4, customer_number=customer_number)
-            self.outbound_lvn_to_booking_id[customer_number] = booking.id
+            # self.waiting_lvn_to_booking_id[customer_number] = booking.id
             return [
                 {
                     "action": "talk",
@@ -262,13 +264,14 @@ class NCCOServer():
 
     @hug.object.post('/event')
     def event_handler(self, request=None, body=None):
+        uuid = body["uuid"]
         print("received event! : " + str(body) + str(request))
         if body["direction"] == "inbound":
-            self.uuid_to_lvn[body["uuid"]] = body["from"]
-            print("event inbound UUID is: " + body["uuid"] + " and " + "from is: " + body["from"])
+            self.uuid_to_lvn[uuid] = body["from"]
+            print("Inbound event UUID is: " + uuid + " and " + "from is: " + body["from"])
         elif body["direction"] == "outbound":
-            self.uuid_to_lvn[body["uuid"]] = body["to"]
-            print("event outbound UUID is: " + body["uuid"] + " and " + "to is: " + body["to"])
+            self.uuid_to_lvn[uuid] = body["to"]
+            print("Outbound event UUID is: " + uuid + " and " + "to is: " + body["to"])
 
     @hug.object.get('/tables')
     def tables(self):
