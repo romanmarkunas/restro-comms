@@ -258,7 +258,8 @@ class NCCOServer():
     @hug.object.post('/event')
     def event_handler(self, request=None, body=None):
         print("received event! : " + str(body) + str(request))
-        self.uuid_to_lvn[body["uuid"]] = body["from"]  # TODO 'from' isn't present on outbound call
+        self.uuid_to_lvn[body["uuid"]] = body["from"]
+        # TODO 'from' isn't present on outbound call
 
     @hug.object.post('/event/outbound')
     def event_handler(self, request=None, body=None):
