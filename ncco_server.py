@@ -119,8 +119,9 @@ class NCCOServer():
                     break
 
     @hug.object.get('/waiting/start')
-    def start_waiting_call(self, body=None):
-        customer_number = body["to"]
+    def start_waiting_call(self, request=None):
+
+        customer_number = request.params["to"]
         waiting_slot_booking = self.waiting_lvn_to_slot_and_booking[customer_number]
         return [
             {
@@ -188,7 +189,8 @@ class NCCOServer():
                 {
                     "action": "talk",
                     "voiceName": "Russell",
-                    "text": "Fantastic, your booking has been successful.",
+                    "text": "Fantastic, your booking has been successful, we'll see you at " + str(booking_time) + "."\
+                    "Thank you good bye."
                 }
             ]
         else:
