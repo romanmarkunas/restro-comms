@@ -22,6 +22,7 @@ class NCCOServer():
         self.booking_service = BookingService()
         self.uuid_to_lvn = {}
         self.outbound_uuid_to_booking = {}
+        self.outbound_lvn_to_booking_id = {}
 
     @hug.object.get('/ncco')
     def start_call(self):
@@ -106,7 +107,7 @@ class NCCOServer():
                             "event_url": ["http://" + self.domain + "/event"]
                         })
                     uuid = response.json()["conversation_uuid"]
-                    print("Customers booking ID: " + customer_waiting[1].id)
+                    print("Customers booking ID: " + str(customer_waiting[1].id))
                     print("Customers UUID: " + uuid)
                     self.outbound_uuid_to_booking[uuid] = customer_waiting[1].id
 
@@ -132,8 +133,8 @@ class NCCOServer():
         print("Customers UUID for DTMF: " + uuid)
         if dtmf == "1":
             alternatives = []
-            booking_id = self.outbound_uuid_to_booking[uuid]
-            self.outbound_uuid_to_booking.pop(uuid, None)
+            customer_number = self.uuid_to_lvn[uuid]
+            booking_id = self.outbound_uuid_to_booking[customer_number]
             wait_list = self.booking_service.get_wait_list()
 
             for customer_waiting in wait_list:
@@ -166,7 +167,7 @@ class NCCOServer():
         booking_time = int(body["dtmf"])
         customer_number = self.uuid_to_lvn[uuid]
         alternatives = []
-        print("Booking table @" + str(booking_time) + " for LVN " + str(customer_number))  # TODO
+        print("Booking table @" + str(booking_time) + " for LVN " + str(customer_number))  # TODO move to better place
         result = self.booking_service.book(hour=booking_time, pax=4, alternatives=alternatives, customer_number=customer_number)
 
         if result:
@@ -180,7 +181,7 @@ class NCCOServer():
             ]
         else:
             booking = self.booking_service.put_to_wait(hour=booking_time, pax=4, customer_number=customer_number)
-            self.outbound_uuid_to_booking[uuid] = booking.id
+            self.outbound_lvn_to_booking_id[customer_number] = booking.id
             return [
                 {
                     "action": "talk",
