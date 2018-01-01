@@ -16,7 +16,7 @@ class BookingService():
         customer_number - customer telephone number
         alternatives - list variable to store alternative booking options"""
 
-        slot = self.__hour_to_slot(hour)
+        slot = self.hour_to_slot(hour)
         initial_booking = Booking(customer_number, pax)
 
         if self.tables.check_available(slot, initial_booking):
@@ -39,7 +39,7 @@ class BookingService():
         return self.slot_to_hour(booking_tuple[0]), booking_tuple[1]
 
     def put_to_wait(self, hour, pax, customer_number):
-        slot = self.__hour_to_slot(hour)
+        slot = self.hour_to_slot(hour)
         booking = Booking(customer_number, pax)
         slot_booking = (slot, booking)
         self.wait_list.put((slot, booking))
