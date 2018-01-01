@@ -264,14 +264,13 @@ class NCCOServer():
 
     @hug.object.post('/event')
     def event_handler(self, request=None, body=None):
-        uuid = body["uuid"]
         print("received event! : " + str(body) + str(request))
         if body["direction"] == "inbound":
-            self.uuid_to_lvn[uuid] = body["from"]
-            print("Inbound event UUID is: " + uuid + " and " + "from is: " + body["from"])
+            self.uuid_to_lvn[body["uuid"]] = body["from"]
+            print("event inbound UUID is: " + body["uuid"] + " and " + "from is: " + body["from"])
         elif body["direction"] == "outbound":
-            self.uuid_to_lvn[uuid] = body["to"]
-            print("Outbound event UUID is: " + uuid + " and " + "to is: " + body["to"])
+            self.uuid_to_lvn[body["uuid"]] = body["to"]
+            print("event outbound UUID is: " + body["uuid"] + " and " + "to is: " + body["to"])
 
     @hug.object.get('/tables')
     def tables(self):
