@@ -41,8 +41,9 @@ class BookingService():
     def put_to_wait(self, hour, pax, customer_number):
         slot = self.__hour_to_slot(hour)
         booking = Booking(customer_number, pax)
+        slot_booking = (slot, booking)
         self.wait_list.put((slot, booking))
-        return booking
+        return slot_booking
 
     def get_tables(self):
         tables_dict = []
