@@ -260,7 +260,7 @@ class NCCOServer():
     @hug.object.post('/event')
     def event_handler(self, request=None, body=None):
         print("received event! : " + str(body) + str(request))
-        data = json.loads(body)
+        data = json.loads(str(body))
         if 'from' in data:
             self.uuid_to_lvn[body["uuid"]] = body["from"]
 
