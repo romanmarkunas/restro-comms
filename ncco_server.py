@@ -103,7 +103,7 @@ class NCCOServer():
                                 "number": self.lvn
                             },
                             "answer_url": ["http://" + self.domain + "/ncco/input/waiting-list/booking"],
-                            "event_url": ["http://" + self.domain + "/event/outbound"]
+                            "event_url": ["http://" + self.domain + "/blah/outbound"]
                         })
                     uuid = response.json()["conversation_uuid"]
                     self.outbound_uuid_to_booking[uuid] = customer_waiting[1].id
@@ -261,7 +261,7 @@ class NCCOServer():
         print("received event! : " + str(body) + str(request))
         self.uuid_to_lvn[body["uuid"]] = body["from"]
 
-    @hug.object.post('/event/outbound')
+    @hug.object.post('/blah/outbound')
     def event_handler(self, request=None, body=None):
         print("received event! : " + str(body) + str(request))
 
