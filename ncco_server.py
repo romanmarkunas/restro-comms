@@ -31,6 +31,7 @@ class NCCOServer():
     def __init__(self):
         self.nexmo_client = nexmo.Client(
             application_id = NCCOServer.APPLICATION_ID, # change to env var
+            private_key = os.environ["PRIVATE_KEY"],
             key = os.environ["DEMO_API_KEY"],
             secret = os.environ["DEMO_API_SECRET"]
         )
@@ -49,7 +50,7 @@ class NCCOServer():
             self.nexmo_client.create_call({
                 "to": [{"type": "phone", "number": self.lvn}],
                 "from": {"type": "phone", "number": self.lvn},
-                "answer_url": [self.domain + "conference-joiner" + "?start=true"]
+                "answer_url": [self.domain + "/conference-joiner" + "?start=true"]
             })
             return [{
                 "action": "talk",
