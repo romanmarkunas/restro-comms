@@ -50,6 +50,18 @@ class NCCOServer():
             "action": "talk",
             "text": "Please wait while we connect you"
           },
+          # {
+          #   "action": "connect",
+          #   "eventUrl": [self.domain + NCCOServer.EVENT],
+          #   "timeout": "45",
+          #   "from": self.lvn,
+          #    "endpoint": [
+          #     {
+          #       "type": "phone",
+          #       "number": "447982968924"
+          #     }
+          #   ]
+          # },
           {
             "action": "connect",
             "eventUrl": [self.domain + NCCOServer.EVENT],
@@ -58,7 +70,7 @@ class NCCOServer():
              "endpoint": [
               {
                 "type": "phone",
-                "number": "447982968924"
+                "number": "37129971123"
               }
             ]
           }
