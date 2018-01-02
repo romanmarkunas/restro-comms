@@ -89,6 +89,7 @@ class NCCOServer():
             "action": "conversation",
             "name": self.conference_id,
             "startOnEnter": str(start).lower(),
+            "endOnExit": str(start).lower(),
             "musicOnHoldUrl": [self.domain + "/hold-tune" ] # https://www.bensound.com
         }]
 
