@@ -53,7 +53,7 @@ class NCCOServer():
             })
             return [{
                 "action": "talk",
-                "text": "Thanks for calling Two Tables. Please hold on"
+                "text": "Thanks for calling Two Tables. Please hold on",
                 "voiceName": "Russell"
             },
             {
