@@ -46,7 +46,7 @@ class NCCOServer():
     def start_call(self, request = None):
         from_lvn = str(request.get_param("from"))
         if from_lvn != self.lvn:
-            self.nexmo_client.create_client({
+            self.nexmo_client.create_call({
                 "to": [{"type": "phone", "number": self.lvn}],
                 "from": {"type": "phone", "number": self.lvn},
                 "answer_url": [self.domain + "conference-joiner" + "?start=true"]
