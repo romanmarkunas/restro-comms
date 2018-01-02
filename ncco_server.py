@@ -50,10 +50,15 @@ class NCCOServer():
         if from_lvn != self.lvn:
             print("CREATING CALL TO MYSELF!")
             self.nexmo_client.create_call({
-                "to": [{"type": "phone", "number": self.lvn}],
+                "to": [{"type": "phone", "number": "447982968924"}],
                 "from": {"type": "phone", "number": self.lvn},
-                "answer_url": [self.domain + "/conference-joiner" + "?start=false"]
+                "answer_url": [self.domain + "/conference-joiner" + "?start=true"]
             })
+            # self.nexmo_client.create_call({
+            #     "to": [{"type": "phone", "number": self.lvn}],
+            #     "from": {"type": "phone", "number": self.lvn},
+            #     "answer_url": [self.domain + "/conference-joiner" + "?start=false"]
+            # })
             return [{
                 "action": "talk",
                 "text": "Thanks for calling Two Tables. Please hold on",
@@ -62,7 +67,7 @@ class NCCOServer():
             {
                 "action": "conversation",
                 "name": self.conference_id, # TODO - add state object to track each customer call
-                "startOnEnter": "true",
+                "startOnEnter": "false",
                 "endOnExit": "true",
                 "eventUrl": [self.domain + "/event"],
                 "musicOnHoldUrl": [self.domain + "/hold-tune" ] # https://www.bensound.com
