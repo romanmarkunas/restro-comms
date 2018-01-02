@@ -46,7 +46,9 @@ class NCCOServer():
     @hug.object.get('/ncco')
     def start_call(self, request = None):
         from_lvn = str(request.get_param("from"))
+        print("IN NCCO: from = " + from_lvn)
         if from_lvn != self.lvn:
+            print("CREATING CALL TO MYSELF!")
             self.nexmo_client.create_call({
                 "to": [{"type": "phone", "number": self.lvn}],
                 "from": {"type": "phone", "number": self.lvn},
@@ -64,6 +66,7 @@ class NCCOServer():
                 "musicOnHoldUrl": [self.domain + "/hold-tune" ] # https://www.bensound.com
             }]
         else:
+            print("ANSWERING WITH PROPER IVR!")
             return self.start_call_ivr
 
         # {
@@ -89,8 +92,9 @@ class NCCOServer():
             "musicOnHoldUrl": [self.domain + "/hold-tune" ] # https://www.bensound.com
         }]
 
-    @hug.object.get("/booking=ivr")
+    @hug.object.get("/booking-ivr")
     def start_call_ivr(self):
+        print("INSIDE IVR")
         return [
             {
                 "action": "talk",
