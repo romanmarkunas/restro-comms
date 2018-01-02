@@ -36,7 +36,7 @@ class NCCOServer():
             secret = os.environ["DEMO_API_SECRET"]
         )
         self.lvn = "447418397022"
-        self.conference_id = "conference" + self.lvn
+        self.conference_id = "conference" + self.lvn + str(uuid_generator.uuid4())
         self.domain = "http://booktwotables.herokuapp.com"
         self.booking_service = BookingService()
         self.uuid_to_lvn = {}
@@ -45,36 +45,54 @@ class NCCOServer():
 
     @hug.object.get('/ncco')
     def start_call(self, request = None):
-        from_lvn = str(request.get_param("from"))
-        print("IN NCCO: from = " + from_lvn)
-        if from_lvn != self.lvn:
-            print("CREATING CALL TO MYSELF!")
-            self.nexmo_client.create_call({
-                "to": [{"type": "phone", "number": "447982968924"}],
-                "from": {"type": "phone", "number": self.lvn},
-                "answer_url": [self.domain + "/conference-joiner" + "?start=true"]
-            })
-            # self.nexmo_client.create_call({
-            #     "to": [{"type": "phone", "number": self.lvn}],
-            #     "from": {"type": "phone", "number": self.lvn},
-            #     "answer_url": [self.domain + "/conference-joiner" + "?start=false"]
-            # })
-            return [{
-                "action": "talk",
-                "text": "Thanks for calling Two Tables. Please hold on",
-                "voiceName": "Russell"
-            },
-            {
-                "action": "conversation",
-                "name": self.conference_id, # TODO - add state object to track each customer call
-                "startOnEnter": "false",
-                "endOnExit": "true",
-                "eventUrl": [self.domain + "/event"],
-                "musicOnHoldUrl": [self.domain + "/hold-tune" ] # https://www.bensound.com
-            }]
-        else:
-            print("ANSWERING WITH PROPER IVR!")
-            return self.start_call_ivr()
+        return [
+          {
+            "action": "talk",
+            "text": "Please wait while we connect you"
+          },
+          {
+            "action": "connect",
+            "eventUrl": [self.domain + NCCOServer.EVENT],
+            "timeout": "45",
+            "from": self.lvn,
+             "endpoint": [
+              {
+                "type": "phone",
+                "number": "447982968924"
+              }
+            ]
+          }
+        ]
+        # from_lvn = str(request.get_param("from"))
+        # print("IN NCCO: from = " + from_lvn)
+        # if from_lvn != self.lvn:
+        #     print("CREATING CALL TO MYSELF!")
+        #     self.nexmo_client.create_call({
+        #         "to": [{"type": "phone", "number": "447982968924"}],
+        #         "from": {"type": "phone", "number": self.lvn},
+        #         "answer_url": [self.domain + "/conference-joiner" + "?start=true"]
+        #     })
+        #     # self.nexmo_client.create_call({
+        #     #     "to": [{"type": "phone", "number": self.lvn}],
+        #     #     "from": {"type": "phone", "number": self.lvn},
+        #     #     "answer_url": [self.domain + "/conference-joiner" + "?start=false"]
+        #     # })
+        #     return [{
+        #         "action": "talk",
+        #         "text": "Thanks for calling Two Tables. Please hold on",
+        #         "voiceName": "Russell"
+        #     },
+        #     {
+        #         "action": "conversation",
+        #         "name": self.conference_id, # TODO - add state object to track each customer call
+        #         "startOnEnter": "false",
+        #         "endOnExit": "true",
+        #         "eventUrl": [self.domain + "/event"],
+        #         "musicOnHoldUrl": [self.domain + "/hold-tune" ] # https://www.bensound.com
+        #     }]
+        # else:
+        #     print("ANSWERING WITH PROPER IVR!")
+        #     return self.start_call_ivr()
 
         # {
         #     "action": "talk",
