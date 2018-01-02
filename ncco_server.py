@@ -12,8 +12,6 @@ import nexmo
 import calendar
 from jose import jwt
 
-
-
 class NCCOServer():
 
     EVENT = "/event"
@@ -40,28 +38,22 @@ class NCCOServer():
 
     @hug.object.get('/ncco')
     def start_call(self, request = None):
-        print(str(request.get_param("from")))
+        from_lvn = str(request.get_param("from"))
+        print(from_lvn)
         internal_ivr_connection = request.get_param("from") == self.lvn
         print(str(internal_ivr_connection))
         return [{
             "action": "talk",
-            "text": "We are connecting you to Nexmo restaurant. Please hold on"
+            "text": "Thanks for calling Two Tables. Please hold on"
+            "voiceName": "Russell"
         },
         {
-            "action": "connect",
-            "endpoint": [
-                {
-                    "content-type": "audio/l16;rate=16000",
-                    "headers": {
-                        "aws_key": str(os.environ["NEXMO_AWS_KEY"]),
-                        "aws_secret": str(os.environ["NEXMO_AWS_SECRET"])
-                    },
-                    "type": "websocket",
-                    "uri": "wss://lex-us-east-1.nexmo.com/bot/BookTwoTables/alias/$LATEST/user/nexmo/content"
-                }
-            ],
-            "eventUrl": [self.domain + "/event"]
-        }
+            "action": "conversation",
+            "name": from_lvn, # TODO - add state object to track each customer call
+            "startOnEnter": "false",
+            "musicOnHoldUrl": [self.domain + "/hold-tune" ] # https://www.bensound.com
+        }]
+
         # {
         #     "action": "talk",
         #     "text": ("Thanks for calling Nexmo restaurant. I am Russell, your "
@@ -75,13 +67,7 @@ class NCCOServer():
         #         "eventUrl": [self.domain + "/ncco/input"]
         #     }
 
-            # {
-            #     "action" : "conversation",
-            #     "name" : self.conversation,
-            #     "startOnEnter" : "false",
-            #     # Music: https://www.bensound.com
-            #     "musicOnHoldUrl" : [ self.domain + "/hold-tune" ]
-            # }
+
 
     def start_call_ivr(self):
         return [
