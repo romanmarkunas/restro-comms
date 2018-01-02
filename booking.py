@@ -118,3 +118,6 @@ class WaitList():
                 return index
             ignore_count -= 1
         return None
+
+    def get_wait_list(self):
+        return self.wait_list
