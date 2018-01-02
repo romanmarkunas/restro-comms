@@ -29,7 +29,13 @@ class NCCOServer():
     SIGN_OFF = ", thank you good bye."
 
     def __init__(self):
+        self.nexmo_client = nexmo.Client(
+            application_id = NCCOServer.APPLICATION_ID, # change to env var
+            key = os.environ["DEMO_API_KEY"],
+            secret = os.environ["DEMO_API_SECRET"]
+        )
         self.lvn = "447418397022"
+        self.conference_id = "conference" + self.lvn
         self.domain = "http://booktwotables.herokuapp.com"
         self.booking_service = BookingService()
         self.uuid_to_lvn = {}
@@ -39,20 +45,25 @@ class NCCOServer():
     @hug.object.get('/ncco')
     def start_call(self, request = None):
         from_lvn = str(request.get_param("from"))
-        print(from_lvn)
-        internal_ivr_connection = request.get_param("from") == self.lvn
-        print(str(internal_ivr_connection))
-        return [{
-            "action": "talk",
-            "text": "Thanks for calling Two Tables. Please hold on"
-            "voiceName": "Russell"
-        },
-        {
-            "action": "conversation",
-            "name": from_lvn, # TODO - add state object to track each customer call
-            "startOnEnter": "false",
-            "musicOnHoldUrl": [self.domain + "/hold-tune" ] # https://www.bensound.com
-        }]
+        if from_lvn != self.lvn:
+            self.nexmo_client.create_client({
+                "to": [{"type": "phone", "number": self.lvn}],
+                "from": {"type": "phone", "number": self.lvn},
+                "answer_url": [self.domain + "conference-joiner" + "?start=true"]
+            })
+            return [{
+                "action": "talk",
+                "text": "Thanks for calling Two Tables. Please hold on"
+                "voiceName": "Russell"
+            },
+            {
+                "action": "conversation",
+                "name": self.conference_id, # TODO - add state object to track each customer call
+                "startOnEnter": "false",
+                "musicOnHoldUrl": [self.domain + "/hold-tune" ] # https://www.bensound.com
+            }]
+        else:
+            return self.start_call_ivr
 
         # {
         #     "action": "talk",
@@ -67,8 +78,17 @@ class NCCOServer():
         #         "eventUrl": [self.domain + "/ncco/input"]
         #     }
 
+    @hug.object.get("/conference-joiner")
+    def join_conference(self, start):
+        print("IN JOINER! start = " + str(start))
+        return [{
+            "action": "conversation",
+            "name": self.conference_id,
+            "startOnEnter": str(start).lower(),
+            "musicOnHoldUrl": [self.domain + "/hold-tune" ] # https://www.bensound.com
+        }]
 
-
+    @hug.object.get("/booking=ivr")
     def start_call_ivr(self):
         return [
             {
@@ -110,7 +130,7 @@ class NCCOServer():
             # ASSUMPTION we will always cancel the first booking for a particular customer.
             self.booking_service.cancel(cancellable_results[0][1].id)
 
-            NCCOServer.send_sms(customer_number, "Your booking for " + cancelled_slot + "pm has been cancelled.")
+            self.send_sms(customer_number, "Your booking for " + cancelled_slot + "pm has been cancelled.")
 
             Thread(target=self.call_waiting_customers(self.booking_service.slot_to_hour(cancellable_results[0][0]))) \
                 .start()
@@ -126,12 +146,8 @@ class NCCOServer():
                 }
             ]
 
-    @staticmethod
-    def send_sms(customer_number, text):
-        demo_api_key = os.environ["DEMO_API_KEY"]
-        demo_api_secret = os.environ["DEMO_API_SECRET"]
-        client = nexmo.Client(key=demo_api_key, secret=demo_api_secret)
-        client.send_message({
+    def send_sms(self, customer_number, text):
+        self.nexmo_client.send_message({
             'from': 'Two tables',
             'to': customer_number,
             'text': text,
