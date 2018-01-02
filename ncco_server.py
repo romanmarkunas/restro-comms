@@ -52,7 +52,7 @@ class NCCOServer():
             self.nexmo_client.create_call({
                 "to": [{"type": "phone", "number": self.lvn}],
                 "from": {"type": "phone", "number": self.lvn},
-                "answer_url": [self.domain + "/conference-joiner" + "?start=true"]
+                "answer_url": [self.domain + "/conference-joiner" + "?start=false"]
             })
             return [{
                 "action": "talk",
@@ -62,12 +62,14 @@ class NCCOServer():
             {
                 "action": "conversation",
                 "name": self.conference_id, # TODO - add state object to track each customer call
-                "startOnEnter": "false",
+                "startOnEnter": "true",
+                "endOnExit": "true",
+                "eventUrl": [self.domain + "/event"],
                 "musicOnHoldUrl": [self.domain + "/hold-tune" ] # https://www.bensound.com
             }]
         else:
             print("ANSWERING WITH PROPER IVR!")
-            return self.start_call_ivr
+            return self.start_call_ivr()
 
         # {
         #     "action": "talk",
