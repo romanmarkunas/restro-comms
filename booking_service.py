@@ -16,7 +16,7 @@ class BookingService():
         customer_number - customer telephone number
         alternatives - list variable to store alternative booking options"""
 
-        slot = self.__hour_to_slot(hour)
+        slot = self.hour_to_slot(hour)
         initial_booking = Booking(customer_number, pax)
 
         if self.tables.check_available(slot, initial_booking):
@@ -29,19 +29,21 @@ class BookingService():
 
     def find(self, booking_id):
         booking_tuple = self.tables.find_booking_by_id(booking_id)
-        return self.__slot_to_hour(booking_tuple[0]), booking_tuple[1]
+        return self.slot_to_hour(booking_tuple[0]), booking_tuple[1]
 
     def cancel(self, booking_id):
         """Returns tuple with slot and cancelled booking if cancellation is
         successful, otherwise returns None"""
 
         booking_tuple = self.tables.cancel_booking(booking_id)
-        return self.__slot_to_hour(booking_tuple[0]), booking_tuple[1]
+        return self.slot_to_hour(booking_tuple[0]), booking_tuple[1]
 
     def put_to_wait(self, hour, pax, customer_number):
-        slot = self.__hour_to_slot(hour)
+        slot = self.hour_to_slot(hour)
         booking = Booking(customer_number, pax)
-        self.wait_list.put(slot, booking)
+        slot_booking = (slot, booking)
+        self.wait_list.put((slot, booking))
+        return slot_booking
 
     def get_tables(self):
         tables_dict = []
@@ -53,20 +55,19 @@ class BookingService():
         return tables_dict
 
     def get_wait_list(self):
-        wait_list_dict = []
-        wait_list_status = self.wait_list.get_wait_list()
-        for i in wait_list_status:
-            booking = self.__booking_to_dict(i)
-        return wait_list_dict
+        return self.wait_list.get_wait_list()
 
     def clear_bookings(self):
         self.__init__()
 
-    def __hour_to_slot(self, hour):
+    def hour_to_slot(self, hour):
         return hour - 12
 
-    def __slot_to_hour(self, slot):
+    def slot_to_hour(self, slot):
         return slot + 12
+
+    def remove_from_wait_list(self, index):
+        self.wait_list.remove(index)
 
     def __generate_alternatives(self, slot, booking):
         current_pax = booking.pax
