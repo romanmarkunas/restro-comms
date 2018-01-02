@@ -45,36 +45,23 @@ class NCCOServer():
 
     @hug.object.get('/ncco')
     def start_call(self, request = None):
-        return [
-          {
+        self.nexmo_client.create_call({
+            "to": [{"type": "phone", "number": "447982968924"}],
+            "from": {"type": "phone", "number": self.lvn},
+            "answer_url": [self.domain + "/conference-joiner" + "?start=true"],
+            "eventUrl": [self.domain + NCCOServer.EVENT]
+        })
+
+         return [{
             "action": "talk",
-            "text": "Please wait while we connect you"
-          },
-          {
-            "action": "connect",
-            "eventUrl": [self.domain + NCCOServer.EVENT],
-            "timeout": "45",
-            "from": self.lvn,
-             "endpoint": [
-              {
-                "type": "phone",
-                "number": "447982968924"
-              }
-            ]
-          },
-          {
-            "action": "connect",
-            "eventUrl": [self.domain + NCCOServer.EVENT],
-            "timeout": "45",
-            "from": self.lvn,
-             "endpoint": [
-              {
-                "type": "phone",
-                "number": "37129971123"
-              }
-            ]
-          }
-        ]
+            "text": "Thanks for calling Two Tables. Please hold on",
+            "voiceName": "Russell"
+        },
+        {
+            "action": "conversation",
+            "name": self.conference_id, # TODO - add state object to track each customer call
+            "musicOnHoldUrl": [self.domain + "/hold-tune" ] # https://www.bensound.com
+        }]
         # from_lvn = str(request.get_param("from"))
         # print("IN NCCO: from = " + from_lvn)
         # if from_lvn != self.lvn:
@@ -126,8 +113,8 @@ class NCCOServer():
             "action": "conversation",
             "name": self.conference_id,
             "startOnEnter": str(start).lower(),
-            "endOnExit": str(start).lower(),
-            "musicOnHoldUrl": [self.domain + "/hold-tune" ] # https://www.bensound.com
+            "endOnExit": str(start).lower()
+            # "musicOnHoldUrl": [self.domain + "/hold-tune" ] # https://www.bensound.com
         }]
 
     @hug.object.get("/booking-ivr")
