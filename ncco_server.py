@@ -48,8 +48,7 @@ class NCCOServer():
         self.nexmo_client.create_call({
             "to": [{"type": "phone", "number": "447982968924"}],
             "from": {"type": "phone", "number": self.lvn},
-            "answer_url": [self.domain + "/conference-joiner" + "?start=true"],
-            "eventUrl": [self.domain + NCCOServer.EVENT]
+            "answer_url": [self.domain + "/conference-joiner"]
         })
 
         return [
@@ -110,8 +109,8 @@ class NCCOServer():
         #     }
 
     @hug.object.get("/conference-joiner")
-    def join_conference(self, start):
-        print("IN JOINER! start = " + str(start))
+    def join_conference(self):
+        # print("IN JOINER! start = " + str(start))
         # return [{
         #     "action": "conversation",
         #     "name": self.conference_id,
@@ -124,7 +123,7 @@ class NCCOServer():
             "action": "conversation",
             "name": "nexmo-conference-moderated",
             "record": "true",
-            "startOnEnter": "true"
+            "endOnExit": "true"
           }
         ]
 
