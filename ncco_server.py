@@ -52,16 +52,19 @@ class NCCOServer():
             "eventUrl": [self.domain + NCCOServer.EVENT]
         })
 
-        return [{
+        return [
+          {
             "action": "talk",
-            "text": "Thanks for calling Two Tables. Please hold on",
-            "voiceName": "Russell"
-        },
-        {
+            "text": "Welcome to a Nexmo moderated conference",
+            "voiceName": "Amy"
+          },
+          {
             "action": "conversation",
-            "name": self.conference_id, # TODO - add state object to track each customer call
-            "musicOnHoldUrl": [self.domain + "/hold-tune" ] # https://www.bensound.com
-        }]
+            "name": "nexmo-conference-moderated",
+            "startOnEnter": "false",
+            "musicOnHoldUrl": ["https://nexmo-community.github.io/ncco-examples/assets/voice_api_audio_streaming.mp3"]
+          }
+        ]
         # from_lvn = str(request.get_param("from"))
         # print("IN NCCO: from = " + from_lvn)
         # if from_lvn != self.lvn:
@@ -109,13 +112,21 @@ class NCCOServer():
     @hug.object.get("/conference-joiner")
     def join_conference(self, start):
         print("IN JOINER! start = " + str(start))
-        return [{
+        # return [{
+        #     "action": "conversation",
+        #     "name": self.conference_id,
+        #     "startOnEnter": str(start).lower(),
+        #     "endOnExit": str(start).lower()
+        #     # "musicOnHoldUrl": [self.domain + "/hold-tune" ] # https://www.bensound.com
+        # }]
+        return [
+          {
             "action": "conversation",
-            "name": self.conference_id,
-            "startOnEnter": str(start).lower(),
-            "endOnExit": str(start).lower()
-            # "musicOnHoldUrl": [self.domain + "/hold-tune" ] # https://www.bensound.com
-        }]
+            "name": "nexmo-conference-moderated",
+            "record": "true",
+            "startOnEnter": "true"
+          }
+        ]
 
     @hug.object.get("/booking-ivr")
     def start_call_ivr(self):
