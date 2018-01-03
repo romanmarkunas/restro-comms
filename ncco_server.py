@@ -45,25 +45,37 @@ class NCCOServer():
 
     @hug.object.get('/ncco')
     def start_call(self, request = None):
-        self.nexmo_client.create_call({
-            "to": [{"type": "phone", "number": "447982968924"}],
-            "from": {"type": "phone", "number": self.lvn},
-            "answer_url": [self.domain + "/conference-joiner"]
-        })
-
-        return [
-          {
-            "action": "talk",
-            "text": "Welcome to a Nexmo moderated conference",
-            "voiceName": "Amy"
-          },
-          {
-            "action": "conversation",
-            "name": "nexmo-conference-moderated",
-            "startOnEnter": "false",
-            "musicOnHoldUrl": ["https://nexmo-community.github.io/ncco-examples/assets/voice_api_audio_streaming.mp3"]
-          }
-        ]
+        from_lvn = str(request.get_param("from"))
+        # self.nexmo_client.create_call({
+        #     "to": [{"type": "phone", "number": "447982968924"}],
+        #     "from": {"type": "phone", "number": self.lvn},
+        #     "answer_url": [self.domain + "/conference-joiner"]
+        # })
+        if from_lvn == "447426007676":
+            print("HEY BOSS!!")
+            return [
+              {
+                "action": "talk",
+                "text": "Welcome to a Nexmo moderated conference",
+                "voiceName": "Amy"
+              },
+              {
+                "action": "conversation",
+                "name": "nexmo-conference-moderated",
+                "startOnEnter": "false",
+                "musicOnHoldUrl": ["https://nexmo-community.github.io/ncco-examples/assets/voice_api_audio_streaming.mp3"]
+              }
+            ]
+        elif from_lvn == "447982968924":
+            print("WOAH!")
+            return [
+              {
+                "action": "conversation",
+                "name": "nexmo-conference-moderated",
+                "record": "true",
+                "endOnExit": "true"
+              }
+            ]
         # from_lvn = str(request.get_param("from"))
         # print("IN NCCO: from = " + from_lvn)
         # if from_lvn != self.lvn:
