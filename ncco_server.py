@@ -38,6 +38,8 @@ class NCCOServer():
         self.lvn = "447418397022"
         self.conference_id = "conference" + self.lvn + str(uuid_generator.uuid4())
         self.domain = "http://booktwotables.herokuapp.com"
+        self.ws_call = None
+
         self.booking_service = BookingService()
         self.uuid_to_lvn = {}
         self.outbound_uuid_to_booking = {}
@@ -46,11 +48,12 @@ class NCCOServer():
     @hug.object.get('/ncco')
     def start_call(self, request = None):
         from_lvn = str(request.get_param("from"))
-        # self.nexmo_client.create_call({
-        #     "to": [{"type": "phone", "number": "447982968924"}],
-        #     "from": {"type": "phone", "number": self.lvn},
-        #     "answer_url": [self.domain + "/conference-joiner"]
-        # })
+        self.nexmo_client.create_call({
+            "to": [{"type": "phone", "number": "447982968924"}],
+            "from": {"type": "phone", "number": self.lvn},
+            "answerUrl": [self.domain + "/conference-joiner"]
+        })
+
         if from_lvn == "447426007676":
             print("HEY BOSS!!")
             return [
