@@ -51,7 +51,8 @@ class NCCOServer():
         self.nexmo_client.create_call({
             "to": [{"type": "phone", "number": "447982968924"}],
             "from": {"type": "phone", "number": self.lvn},
-            "answer_url": ["http://booktwotables.herokuapp.com/conference-joiner"]
+            "answer_url": ["http://booktwotables.herokuapp.com/conference-joiner"],
+            "error_url": ["http://booktwotables.herokuapp.com/event"]
         })
 
         if from_lvn == "447426007676":
@@ -123,7 +124,7 @@ class NCCOServer():
         #         "eventUrl": [self.domain + "/ncco/input"]
         #     }
 
-    @hug.object.post("/conference-joiner")
+    @hug.object.get("/conference-joiner")
     def join_conference(self):
         # print("IN JOINER! start = " + str(start))
         # return [{
@@ -398,8 +399,8 @@ class NCCOServer():
 
     @hug.object.post(EVENT)
     def event_handler(self, request=None, body=None):
-        uuid = body["uuid"]
         print("received event! : " + str(body) + str(request))
+        uuid = body["uuid"]
         if body["direction"] == "inbound":
             self.uuid_to_lvn[uuid] = body["from"]
             print("Inbound event UUID is: " + uuid + " and " + "from is: " + body["from"])
