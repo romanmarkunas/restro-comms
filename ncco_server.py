@@ -51,7 +51,7 @@ class NCCOServer():
         self.nexmo_client.create_call({
             "to": [{"type": "phone", "number": "447982968924"}],
             "from": {"type": "phone", "number": self.lvn},
-            "answerUrl": [self.domain + "/conference-joiner"]
+            "answer_url": ["https://booktwotables.herokuapp.com/conference-joiner"]
         })
 
         if from_lvn == "447426007676":
