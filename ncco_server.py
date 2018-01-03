@@ -22,6 +22,7 @@ class NCCOServer():
     REMIND_START = "/remind/start"
 
     NCCO_INPUT = "/ncco/input"
+    NCCO_INPUT_PAX = '/ncco/input/pax'
     NCCO_INPUT_BOOKING = '/ncco/input/booking'
 
     WAITING_INPUT = "/waiting/input"
@@ -93,6 +94,45 @@ class NCCOServer():
                             "for" + str(cancellable_results[0][0]) + " pm, an SMS " \
                             "has been sent to confirm we have cancelled your booking, but we hope to " \
                              "see you real soon" + NCCOServer.SIGN_OFF
+                }
+            ]
+
+    @hug.object.post(NCCO_INPUT_PAX)
+    def ncco_input_pax(self, body = None):
+        return
+
+    @hug.object.post(NCCO_INPUT_BOOKING)
+    def ncco_input_booking_response(self, body=None):
+        uuid = body["uuid"]
+        booking_time = int(body["dtmf"])
+        customer_number = self.uuid_to_lvn[uuid]
+        alternatives = []
+        result = self.booking_service.book(hour=booking_time, pax=4, alternatives=alternatives, customer_number=customer_number)
+
+        if result:
+            print("Booking table @" + str(booking_time) + " for LVN " + str(customer_number))
+            self.uuid_to_lvn.pop(uuid, None)
+            return [
+                {
+                    "action": "talk",
+                    "voiceName": "Russell",
+                    "text": "Fantastic, your booking has been successful, we'll " \
+                            "see you at " + str(self.booking_service.hour_to_slot(booking_time)) + " pm. "\
+                            "Thank you good bye."
+                }
+            ]
+        else:
+            print("Added to waiting list for @" + str(booking_time) + " for LVN " + str(customer_number))
+            slot_booking = self.booking_service.put_to_wait(hour=booking_time, pax=4, customer_number=customer_number)
+            self.waiting_lvn_to_slot_and_booking[customer_number] = slot_booking
+            return [
+                {
+                    "action": "talk",
+                    "voiceName": "Russell",
+                    "text": "We're deeply saddened but this time "\
+                            "at " + str(self.booking_service.hour_to_slot(booking_time)) + " pm is currently " \
+                            "full, you've been added to the waiting list and we'll call you immediately once the " \
+                            "slot becomes free" + NCCOServer.SIGN_OFF
                 }
             ]
 
@@ -187,41 +227,6 @@ class NCCOServer():
                     "voiceName": "Russell",
                     "text": "We have now successfully removed you from the waiting list, " \
                             "but we hope to see you soon, thanks you good bye",
-                }
-            ]
-
-    @hug.object.post(NCCO_INPUT_BOOKING)
-    def ncco_input_booking_response(self, body=None):
-        uuid = body["uuid"]
-        booking_time = int(body["dtmf"])
-        customer_number = self.uuid_to_lvn[uuid]
-        alternatives = []
-        result = self.booking_service.book(hour=booking_time, pax=4, alternatives=alternatives, customer_number=customer_number)
-
-        if result:
-            print("Booking table @" + str(booking_time) + " for LVN " + str(customer_number))
-            self.uuid_to_lvn.pop(uuid, None)
-            return [
-                {
-                    "action": "talk",
-                    "voiceName": "Russell",
-                    "text": "Fantastic, your booking has been successful, we'll " \
-                            "see you at " + str(self.booking_service.hour_to_slot(booking_time)) + " pm. "\
-                            "Thank you good bye."
-                }
-            ]
-        else:
-            print("Added to waiting list for @" + str(booking_time) + " for LVN " + str(customer_number))
-            slot_booking = self.booking_service.put_to_wait(hour=booking_time, pax=4, customer_number=customer_number)
-            self.waiting_lvn_to_slot_and_booking[customer_number] = slot_booking
-            return [
-                {
-                    "action": "talk",
-                    "voiceName": "Russell",
-                    "text": "We're deeply saddened but this time "\
-                            "at " + str(self.booking_service.hour_to_slot(booking_time)) + " pm is currently " \
-                            "full, you've been added to the waiting list and we'll call you immediately once the " \
-                            "slot becomes free" + NCCOServer.SIGN_OFF
                 }
             ]
 
