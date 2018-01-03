@@ -36,7 +36,6 @@ class NCCOServer():
         self.booking_service = BookingService()
         self.uuid_to_lvn = {}
         self.outbound_uuid_to_booking = {}
-        self.waiting_lvn_to_slot_and_booking = {}
 
     @hug.object.get('/ncco')
     def start_call(self):
@@ -136,13 +135,19 @@ class NCCOServer():
     def start_waiting_call(self, request=None):
 
         customer_number = request.params["to"]
-        waiting_slot_booking = self.waiting_lvn_to_slot_and_booking[customer_number]
+
+        def get_slot_using_customer_number(val):
+            return val[1].customer_number == customer_number
+
+        index = self.booking_service.wait_list.find(get_slot_using_customer_number)
+        slot_booking = self.booking_service.get_wait_list()[index]
+
         return [
             {
                 "action": "talk",
                 "voiceName": "Russell",
                 "text": "Hi there it's Two Tables with tremendous news, a booking slot " \
-                        "for " + str(waiting_slot_booking[0]) + "pm has become free, " \
+                        "for " + str(slot_booking[0]) + "pm has become free, " \
                         "press 1 to accept or 2 to remove yourself from the waiting list?",
                 "bargeIn": True
             },
@@ -155,20 +160,25 @@ class NCCOServer():
     @hug.object.post(WAITING_INPUT)
     def waiting_call_input_response(self, body=None):
         dtmf = body["dtmf"]
+        uuid = body["uuid"]
+
+        customer_number = self.uuid_to_lvn[uuid]
+        self.uuid_to_lvn.pop(uuid)
+
+        def get_slot_using_customer_number(val):
+            return val[1].customer_number == customer_number
+
+        index = self.booking_service.wait_list.find(get_slot_using_customer_number)
 
         if dtmf == "1":
             alternatives = []
-            uuid = body["uuid"]
+
             print("Waiting customers UUID for DTMF: " + uuid)
 
-            customer_number = self.uuid_to_lvn[uuid]
-            self.uuid_to_lvn.pop(uuid)
-
-            slot_booking = self.waiting_lvn_to_slot_and_booking[customer_number]
-            self.waiting_lvn_to_slot_and_booking.pop(customer_number)
+            slot_booking = self.booking_service.get_wait_list()[index]
 
             self.booking_service.book(slot_booking[0], 4, slot_booking[1].customer_number, alternatives)
-            self.booking_service.remove_from_wait_list(0)
+            self.booking_service.remove_from_wait_list(index)
             return [
                 {
                     "action": "talk",
@@ -179,8 +189,7 @@ class NCCOServer():
             ]
 
         elif dtmf == "2":
-            # ASSUMPTION there is only ever one in the wait list for now.
-            self.booking_service.remove_from_wait_list(0)
+            self.booking_service.remove_from_wait_list(index)
             return [
                 {
                     "action": "talk",
@@ -212,8 +221,7 @@ class NCCOServer():
             ]
         else:
             print("Added to waiting list for @" + str(booking_time) + " for LVN " + str(customer_number))
-            slot_booking = self.booking_service.put_to_wait(hour=booking_time, pax=4, customer_number=customer_number)
-            self.waiting_lvn_to_slot_and_booking[customer_number] = slot_booking
+            self.booking_service.put_to_wait(hour=booking_time, pax=4, customer_number=customer_number)
             return [
                 {
                     "action": "talk",
