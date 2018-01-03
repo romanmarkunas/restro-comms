@@ -32,7 +32,7 @@ class NCCOServer():
 
     def __init__(self):
         self.lvn = "447418397022"
-        self.domain = "booktwotables.herokuapp.com"
+        self.domain = "http://booktwotables.herokuapp.com"
         self.booking_service = BookingService()
         self.uuid_to_lvn = {}
         self.outbound_uuid_to_booking = {}
@@ -50,7 +50,7 @@ class NCCOServer():
             },
             {
                 "action": "input",
-                "eventUrl": ["http://" + self.domain + NCCOServer.NCCO_INPUT]
+                "eventUrl": [self.domain + NCCOServer.NCCO_INPUT]
             }
         ]
 
@@ -70,7 +70,7 @@ class NCCOServer():
                     "action": "input",
                     "submitOnHash": True,
                     "timeOut": 10,
-                    "eventUrl": ["http://" + self.domain + NCCOServer.NCCO_INPUT_BOOKING]
+                    "eventUrl": [self.domain + NCCOServer.NCCO_INPUT_BOOKING]
                 }
             ]
         elif dtmf == "2":
@@ -124,8 +124,8 @@ class NCCOServer():
                             "type": "phone",
                             "number": self.lvn
                         },
-                        "answer_url": ["http://" + self.domain + NCCOServer.WAITING_START],
-                        "event_url": ["http://" + self.domain + NCCOServer.EVENT]
+                        "answer_url": [self.domain + NCCOServer.WAITING_START],
+                        "event_url": [self.domain + NCCOServer.EVENT]
                     })
                 uuid = response.json()["conversation_uuid"]
                 print("Customers booking ID: " + str(customer_waiting[1].id))
@@ -148,7 +148,7 @@ class NCCOServer():
             },
             {
                 "action": "input",
-                "eventUrl": ["http://" + self.domain + NCCOServer.WAITING_INPUT]
+                "eventUrl": [self.domain + NCCOServer.WAITING_INPUT]
             }
         ]
 
@@ -241,8 +241,8 @@ class NCCOServer():
                     "type": "phone",
                     "number": self.lvn
                 },
-                "answer_url": ["http://" + self.domain + NCCOServer.REMIND_START],
-                "event_url": ["http://" + self.domain + NCCOServer.EVENT]
+                "answer_url": [self.domain + NCCOServer.REMIND_START],
+                "event_url": [self.domain + NCCOServer.EVENT]
             })
         uuid = response.json()["conversation_uuid"]
         self.outbound_uuid_to_booking[uuid] = booking_id
@@ -271,7 +271,7 @@ class NCCOServer():
         },
             {
                 "action": "input",
-                "eventUrl": ["http://" + self.domain + NCCOServer.REMIND_INPUT]
+                "eventUrl": [self.domain + NCCOServer.REMIND_INPUT]
             }]
 
     @hug.object.post(REMIND_INPUT)
