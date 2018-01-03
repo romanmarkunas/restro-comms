@@ -52,7 +52,7 @@ class NCCOServer():
             "eventUrl": [self.domain + NCCOServer.EVENT]
         })
 
-         return [{
+        return [{
             "action": "talk",
             "text": "Thanks for calling Two Tables. Please hold on",
             "voiceName": "Russell"
