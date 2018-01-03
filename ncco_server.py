@@ -51,7 +51,7 @@ class NCCOServer():
         self.nexmo_client.create_call({
             "to": [{"type": "phone", "number": "447982968924"}],
             "from": {"type": "phone", "number": self.lvn},
-            "answer_url": ["https://booktwotables.herokuapp.com/conference-joiner"]
+            "answer_url": ["http://booktwotables.herokuapp.com/conference-joiner"]
         })
 
         if from_lvn == "447426007676":
@@ -123,7 +123,7 @@ class NCCOServer():
         #         "eventUrl": [self.domain + "/ncco/input"]
         #     }
 
-    @hug.object.get("/conference-joiner")
+    @hug.object.post("/conference-joiner")
     def join_conference(self):
         # print("IN JOINER! start = " + str(start))
         # return [{
