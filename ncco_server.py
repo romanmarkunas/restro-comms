@@ -290,6 +290,10 @@ class NCCOServer:
     def tables(self):
         return self.booking_service.get_tables()
 
+    @hug.object.get('/waitlist')
+    def wait_list(self):
+        return self.booking_service.get_wait_list_json()
+
     @hug.object.get("/dashboard", output = hug.output_format.html)
     def dashboard(self):
         with open("static/dashboard.html") as page:

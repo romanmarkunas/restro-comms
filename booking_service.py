@@ -57,6 +57,14 @@ class BookingService():
     def get_wait_list(self):
         return self.wait_list.get_wait_list()
 
+    def get_wait_list_json(self):
+        waiting_dict = []
+        waiting = self.get_wait_list()
+        if waiting is not None:
+            for slot, booking in waiting:
+                waiting_dict.append([slot, booking.customer_number, booking.pax])
+        return waiting_dict
+
     def clear_bookings(self):
         self.__init__()
 
