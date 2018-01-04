@@ -81,6 +81,8 @@ class NCCOServer:
                 ).build()
             elif dtmf == "2":
                 return self.__do_cancel(customer_number=call.get_lvn(), uuid=uuid)
+            elif dtmf == "3":
+                return self.__do_cancel_and_reschedule(customer_number=call.get_lvn(), uuid=uuid)
         elif call.get_state() == CallState.BOOKING_ASK_TIME:
             call.save_var('time', int(dtmf))
             call.set_state(CallState.BOOKING_ASK_PAX)
@@ -112,6 +114,28 @@ class NCCOServer:
             uuid=uuid,
             slot=cancellable_results[0][0]
         )
+
+    def __do_cancel_and_reschedule(self, customer_number, uuid):
+        cancellable_results = self.booking_service.find_bookings(customer_number)
+        # ASSUMPTION we will always cancel the first booking for a particular customer.
+        self.booking_service.cancel(cancellable_results[0][1].id)
+        return self.__cancel_and_reschedule_triggered(
+            customer_number=customer_number,
+            uuid=uuid,
+            slot=cancellable_results[0][0]
+        )
+
+    def __cancel_and_reschedule_triggered(self, customer_number, slot, uuid):
+        NCCOServer.send_sms(customer_number, "Your booking for " + str(slot) + " has been cancelled.")
+        Thread(target=self.call_waiting_customers(self.booking_service.slot_to_hour(slot))).start()
+        call = self.calls[uuid]
+        call.set_state(CallState.BOOKING_ASK_TIME)
+        return NccoBuilder().cancel_and_reschedule(str(slot)).with_input(
+                    self.domain + NCCOServer.NCCO_INPUT,
+                    extra_params={
+                        "submitOnHash": True,
+                        "timeOut": 15
+                    }).build()
 
     def __cancel_triggered(self, customer_number, slot, uuid):
         NCCOHelper.send_sms(customer_number, "Your booking for " + str(slot) + " has been cancelled.")
@@ -298,6 +322,7 @@ class NCCOServer:
         self.manager_lvn = str(number)
         return {"action": "changed manager number to " + str(number)}
 
+# If customer selects reschedule then cancel the booking and redirect to new booking flow
 
 router = hug.route.API(__name__)
 router.object('/')(NCCOServer)
