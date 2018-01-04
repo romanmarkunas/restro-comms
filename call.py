@@ -37,18 +37,18 @@ class NccoBuilder:
     def customer_call_greeting(self):
         self.ncco.append(NccoBuilder.__talk(
             "Thanks for calling Two Tables. Please key in 1 for booking or 2 "
-            "for cancelling.", barge_in=True))
+            "for cancelling."))
         return self
 
-    def with_input(self, loc, action=None, call=None):
-        self.ncco.append(NccoBuilder.__input(loc=loc, action=action, call=call))
+    def with_input(self, loc, method="GET", call=None):
+        self.ncco.append(NccoBuilder.__input(loc=loc, method=method, call=call))
         return self
 
     def build(self):
         return self.ncco
 
     @staticmethod
-    def __talk(text, barge_in=False):
+    def __talk(text, barge_in=True):
         return {
             "action": "talk",
             "text": text,
@@ -57,16 +57,16 @@ class NccoBuilder:
         }
 
     @staticmethod
-    def __input(loc, action=None, call=None):
+    def __input(loc, method=None, call=None):
         event_url = loc
         if call is not None:
             event_url += "?state=" + call.get_state_val()
 
         ncco = {
             "action": "input",
-            "eventUrl": event_url
+            "eventUrl": [event_url]
         }
-        if action is not None:
-            ncco["eventMethod"] = "GET"
+        if method is not None:
+            ncco["eventMethod"] = method
 
         return ncco
