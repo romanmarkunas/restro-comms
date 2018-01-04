@@ -66,7 +66,7 @@ class NccoBuilder:
 
     def cancel(self, hour):
         self.ncco.append(NccoBuilder.__talk(
-            "Thanks for letting us know! Your reservation for" + hour + "pm was"
+            "Thanks for letting us know! Your reservation for" + hour + " was"
             "cancelled. Bye!",
             barge_in=False
         ))
@@ -75,14 +75,14 @@ class NccoBuilder:
     def book(self, hour):
         self.ncco.append(NccoBuilder.__talk(
             "Fantastic, your booking has been successful, we'll see you "
-            "at " + hour + " pm. Bye!",
+            "at " + hour + " hours. Bye!",
             barge_in=False
         ))
         return self
 
     def wait(self, hour):
         self.ncco.append(NccoBuilder.__talk(
-            "I'm sorry, but " + hour + " pm is currently full, you've been "
+            "I'm sorry, but " + hour + " hours is currently full, you've been "
             "added to the waiting list and we'll call you immediately once the "
             "slot becomes available. Bye!",  # TODO - better propose other time
             barge_in=False
@@ -92,8 +92,8 @@ class NccoBuilder:
     def remind(self, hour):
         self.ncco.append(NccoBuilder.__talk(
             "Hi, this is Two Tables. Just checking you are still ok for your "
-            "reservation at " + hour + " pm? Press 1 for yes, 2 for cancel or "
-            "any other key to repeat."
+            "reservation at " + hour + " hours? Press 1 for yes, 2 for cancel "
+            "or any other key to repeat."
         ))
         return self
 
