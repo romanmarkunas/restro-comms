@@ -283,14 +283,15 @@ class NCCOServer:
     def tables(self):
         return self.booking_service.get_tables()
 
-    @hug.object.get("/hold-tune", output = hug.output_format.file)
-    def hold_music(self):
-        return open('static/bensound-thejazzpiano.mp3', mode='rb')
-
     @hug.object.get("/dashboard", output = hug.output_format.html)
     def dashboard(self):
         with open("static/dashboard.html") as page:
             return page.read()
+
+    @hug.object.get("/manager")
+    def change_manager_number(self, number=None):
+        self.manager_lvn = str(number)
+        return {"action": "changed manager number to " + str(number)}
 
 
 router = hug.route.API(__name__)
