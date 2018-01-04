@@ -56,8 +56,7 @@ class NCCOServer:
                 return NccoBuilder().select_time().with_input(
                     self.domain + NCCOServer.NCCO_INPUT,
                     extra_params={
-                        "submitOnHash": True,
-                        "timeOut": 10
+                        "submitOnHash": True
                     }
                 ).build()
             elif dtmf == "2":
@@ -77,17 +76,18 @@ class NCCOServer:
         elif call.get_state() == CallState.BOOKING_ASK_TIME:
             call.save_var('time', int(dtmf))
             call.set_state(CallState.BOOKING_ASK_PAX)
-            return NccoBuilder().select_pax().build()
+            return NccoBuilder().select_pax().with_input(
+                self.domain + NCCOServer.NCCO_INPUT
+            ).build()
         elif call.get_state() == CallState.BOOKING_ASK_PAX:
             pax = int(dtmf)
             booking_time = call.get_var('time')
             customer_number = call.get_lvn()
             alternatives = []
             result = self.booking_service.book(hour=booking_time, pax=pax, alternatives=alternatives, customer_number=customer_number)
+            del self.calls[uuid]
 
             if result:
-                call.save_var('time', int(dtmf))
-                call.set_state(CallState.BOOKING_ASK_PAX)
                 return NccoBuilder().book(str(self.booking_service.hour_to_slot(booking_time))).build()
             else:
                 self.booking_service.put_to_wait(hour=booking_time, pax=pax, customer_number=customer_number)

@@ -107,7 +107,8 @@ class NccoBuilder:
     def __input(loc, extra_params=None):
         ncco = {
             "action": "input",
-            "eventUrl": [loc]
+            "eventUrl": [loc],
+            "timeOut": 15
         }
 
         if extra_params is not None:
