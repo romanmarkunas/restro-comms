@@ -294,11 +294,6 @@ class NCCOServer:
     def wait_list(self):
         return self.booking_service.get_wait_list_json()
 
-    @hug.object.post('/blah1')
-    def fdfdfdfd(self):
-        self.booking_service.put_to_wait(hour=18, pax=2, customer_number="1234")
-        self.booking_service.put_to_wait(hour=13, pax=4, customer_number="1256")
-
     @hug.object.get("/dashboard", output = hug.output_format.html)
     def dashboard(self):
         with open("static/dashboard.html") as page:
