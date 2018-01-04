@@ -51,7 +51,7 @@ class NCCOServer:
         uuid = body['conversation_uuid']
         call = self.calls[uuid]
 
-        if dtmf == "0":
+        if dtmf == "0" or dtmf == "0#":
             del self.calls[uuid]
             return [{
                 "action": "record",
