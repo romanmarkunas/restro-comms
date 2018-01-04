@@ -109,11 +109,9 @@ class NCCOServer:
         )
 
     def __cancel_triggered(self, customer_number, slot, uuid):
-        NCCOServer.send_sms(customer_number, "Your booking for " + str(slot) + "pm has been cancelled.")
-
+        NCCOServer.send_sms(customer_number, "Your booking for " + str(slot) + " has been cancelled.")
         Thread(target=self.call_waiting_customers(self.booking_service.slot_to_hour(slot))).start()
-
-        del self.calls[uuid]
+        self.calls.pop(uuid, None)
         return NccoBuilder().cancel(str(slot)).build()
 
     @staticmethod
