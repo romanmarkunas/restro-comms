@@ -75,16 +75,24 @@ class NCCOServer:
                 del self.calls[uuid]
                 return NccoBuilder().cancel(str(cancellable_results[0][0])).build()
         elif call.get_state() == CallState.BOOKING_ASK_TIME:
-            booking_time = int(dtmf)
+            call.save_var('time', int(dtmf))
+            call.set_state(CallState.BOOKING_ASK_PAX)
+            return NccoBuilder().select_pax().build()
+        elif call.get_state() == CallState.BOOKING_ASK_PAX:
+            pax = int(dtmf)
+            booking_time = call.get_var('time')
             customer_number = call.get_lvn()
             alternatives = []
-            result = self.booking_service.book(hour=booking_time, pax=4, alternatives=alternatives, customer_number=customer_number)
+            result = self.booking_service.book(hour=booking_time, pax=pax, alternatives=alternatives, customer_number=customer_number)
 
             if result:
+                call.save_var('time', int(dtmf))
+                call.set_state(CallState.BOOKING_ASK_PAX)
                 return NccoBuilder().book(str(self.booking_service.hour_to_slot(booking_time))).build()
             else:
-                self.booking_service.put_to_wait(hour=booking_time, pax=4, customer_number=customer_number)
+                self.booking_service.put_to_wait(hour=booking_time, pax=pax, customer_number=customer_number)
                 return NccoBuilder().wait(str(self.booking_service.hour_to_slot(booking_time))).build()
+
 
     @staticmethod
     def send_sms(customer_number, text):

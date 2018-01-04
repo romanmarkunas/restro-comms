@@ -16,6 +16,7 @@ class Call:
     def __init__(self, user_lvn, state=CallState.STARTED):
         self.user_lvn = str(user_lvn)
         self.state = state
+        self.saved_vars = {}
 
     def get_lvn(self):
         return self.user_lvn
@@ -28,6 +29,12 @@ class Call:
 
     def set_state(self, state):
         self.state = state
+
+    def save_var(self, key, val):
+        self.saved_vars[key] = val
+
+    def get_var(self, key):
+        return self.saved_vars[key]
 
 
 class NccoBuilder:
@@ -46,6 +53,12 @@ class NccoBuilder:
         self.ncco.append(NccoBuilder.__talk(
             "Excellent, please enter the time between 12 and 21 hours followed "
             "by the hash key."
+        ))
+        return self
+
+    def select_pax(self):
+        self.ncco.append(NccoBuilder.__talk(
+            "Please enter number of guests between 1 and 4"
         ))
         return self
 
