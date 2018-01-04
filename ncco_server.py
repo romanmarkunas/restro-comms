@@ -44,7 +44,7 @@ class NCCOServer:
         caller_name = number_insight_json.get("caller_name", "")
         call = Call(user_lvn=lvn, state=CallState.CHOOSE_ACTION, is_mobile=number_insight_json["original_carrier"] == "mobile")
         self.calls[request.params['conversation_uuid']] = call
-        return NccoBuilder().customer_call_greeting(NCCOHelper.get_caller_name(caller_name)).with_input(
+        return NccoBuilder().customer_call_greeting(caller_name).with_input(
             self.domain + NCCOServer.NCCO_INPUT
         ).build()
 
