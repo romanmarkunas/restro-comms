@@ -56,7 +56,8 @@ class NCCOServer:
                 return NccoBuilder().select_time().with_input(
                     self.domain + NCCOServer.NCCO_INPUT,
                     extra_params={
-                        "submitOnHash": True
+                        "submitOnHash": True,
+                        "timeOut": 15
                     }
                 ).build()
             elif dtmf == "2":
