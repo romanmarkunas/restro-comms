@@ -16,69 +16,74 @@
     <div class="card-body">
       <h5 class="card-title">Table reservation chart</h5>
       <table class="table .table-dark" id="reservation-chart" border="1"></table>
-      <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
       <script>
-    function updateTable() {
-      $.getJSON("../tables", function(json) {
-          doUpdateTable(json);
-        })
-    }
-
-    function doUpdateTable(json) {
-      var table = document.getElementById("reservation-chart");
-      while (table.firstChild) {
-        table.removeChild(table.firstChild);
-      }
-
-      for (var i = 0; i < json.length; i++) {
-        var row = document.createElement("tr");
-
-        row.appendChild(createTimeLabel(i));
-
-        for (var j = 0; j < json[i].length; j++) {
-          var col = document.createElement("td");
-          addText(col, "Table [" + i + ":" + j + "]");
-          addText(col, "PAX: " + json[i][j]["pax"]);
-          addText(col, "LVN: " + json[i][j]["lvn"]);
-          col.appendChild(createRemindButton(json[i][j]["id"]));
-          row.appendChild(col);
+        function updateTable() {
+          $.getJSON("../tables", function(json) {
+              doUpdateTable(json);
+            })
         }
 
-        table.appendChild(row);
-      }
-    }
+        function doUpdateTable(json) {
+          var table = document.getElementById("reservation-chart");
+          while (table.firstChild) {
+            table.removeChild(table.firstChild);
+          }
 
-    function addText(el, text) {
-      el.appendChild(document.createTextNode(text));
-      el.appendChild(document.createElement("br"));
-    }
+          for (var i = 0; i < json.length; i++) {
+            var row = document.createElement("tr");
 
-    function createRemindButton(bookingId) {
-      var button = document.createElement("button");
-      if (bookingId == undefined){
-        button.className = "btn btn-primary";
-      } else {
-        button.className = "btn btn-success";
-      }
-      var text = document.createTextNode("Remind")
-      button.appendChild(text)
-      button.addEventListener("click", function() {
-        $.post("../remind/trigger", { id: bookingId }, "json");
-      });
-      return button;
-    }
+            row.appendChild(createTimeLabel(i));
 
-    function createTimeLabel(slot) {
-      var hour = 12 + slot;
-      var td = document.createElement("td");
-      addText(td, hour + ":00 - " + (hour + 1) + ":00");
-      return td;
-    }
+            for (var j = 0; j < json[i].length; j++) {
+              var col = document.createElement("td");
+              addText(col, "Table [" + i + ":" + j + "]");
+              addText(col, "PAX: " + json[i][j]["pax"]);
+              addText(col, "LVN: " + json[i][j]["lvn"]);
+              col.appendChild(createRemindButton(json[i][j]["id"]));
+              row.appendChild(col);
+            }
 
-    setInterval(function(){
-      updateTable();
-    }, 2000)
-  </script>
+            table.appendChild(row);
+          }
+        }
+
+        function addText(el, text) {
+          el.appendChild(document.createTextNode(text));
+          el.appendChild(document.createElement("br"));
+        }
+
+        function createRemindButton(bookingId) {
+          var button = document.createElement("button");
+          if (bookingId == undefined){
+            button.className = "btn btn-default disabled";
+          } else {
+            button.className = "btn btn-success";
+            colors = getColors()
+            button.style.background = colors[parseInt(bookingId) % colors.length]
+          }
+          var text = document.createTextNode("Remind")
+          button.appendChild(text)
+          button.addEventListener("click", function() {
+            $.post("../remind/trigger", { id: bookingId }, "json");
+          });
+          return button;
+        }
+
+        function getColors() {
+          return ["Chocolate","Crimson","Fuchsia","HoneyDew","Maroon","Navy","Orange","Salmon","SkyBlue","SpringGreen","Tan","Tomato","Turquoise","Violet","Yellow"];
+        }
+
+        function createTimeLabel(slot) {
+          var hour = 12 + slot;
+          var td = document.createElement("td");
+          addText(td, hour + ":00 - " + (hour + 1) + ":00");
+          return td;
+        }
+
+        setInterval(function(){
+          updateTable();
+        }, 2000)
+      </script>
       </div>
     </div>
   </body>
