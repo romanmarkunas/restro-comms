@@ -54,21 +54,12 @@ class BookingService():
             tables_dict.append([table1booking, table2booking])
         return tables_dict
 
-    def get_tables(self):
-        tables_dict = []
-        table_status = self.tables.get_tables()
-        for i in range(0, Tables.SLOTS):
-            table1booking = self.__booking_to_dict(table_status[0][i])
-            table2booking = self.__booking_to_dict(table_status[1][i])
-            tables_dict.append([table1booking, table2booking])
-        return tables_dict
-
     def get_wait_list(self):
         return self.wait_list.get_wait_list()
 
     def get_wait_list_json(self):
         waiting_dict = []
-        waiting = self.wait_list.get_wait_list()
+        waiting = self.get_wait_list()
         if waiting is not None:
             for slot, booking in waiting:
                 waiting_dict.append([slot, booking.customer_number, booking.pax])
