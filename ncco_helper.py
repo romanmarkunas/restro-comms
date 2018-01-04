@@ -5,11 +5,6 @@ import os
 class NCCOHelper(object):
 
     @staticmethod
-    def get_caller_name(caller_name):
-        """Returns caller name if true or empty string if false"""
-        return caller_name if caller_name else ""
-
-    @staticmethod
     def get_call_info(customer_number):
         """Returns json response from number insight advanced call"""
         demo_api_key = os.environ["DEMO_API_KEY"]

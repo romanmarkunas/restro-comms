@@ -82,7 +82,7 @@
         }
 
         function getColors() {
-          return ["Chocolate","Crimson","Fuchsia","HoneyDew","Maroon","Navy","Orange","Salmon","SkyBlue","SpringGreen","Tan","Tomato","Turquoise","Violet","Yellow"];
+          return ["Chocolate","Crimson","Fuchsia","MediumSeaGreen","Maroon","Navy","Orange","Salmon","SkyBlue","SpringGreen","Tan","Tomato","Turquoise","Violet","Yellow"];
         }
 
         function createTimeLabel(slot) {
@@ -99,10 +99,9 @@
       </div>
     </div>
   <div class="card text-center">
-    <h5 class="card-header">Two Tables</h5>
     <div class="card-body">
       <h5 class="card-title">Wait list chart</h5>
-      <table class="table .table-dark" id="wait-list-chart" border="1"></table>
+      <table class="table" id="wait-list-chart" border="1"></table>
       <script>
         function updateWaitListTable() {
           $.getJSON("../waitlist", function(json) {
