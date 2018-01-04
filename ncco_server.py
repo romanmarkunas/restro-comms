@@ -79,7 +79,7 @@ class NCCOServer:
             elif dtmf == "2":
                 return self.__do_cancel(customer_number=call.get_lvn(), uuid=uuid)
             elif dtmf == "3":
-                self.__do_cancel(customer_number=call.get_lvn(), uuid=uuid)
+                self.__do_cancel_and_reschedule(customer_number=call.get_lvn(), uuid=uuid)
         elif call.get_state() == CallState.BOOKING_ASK_TIME:
             call.save_var('time', int(dtmf))
             call.set_state(CallState.BOOKING_ASK_PAX)
