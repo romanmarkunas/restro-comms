@@ -30,6 +30,18 @@
             table.removeChild(table.firstChild);
           }
 
+          var row = document.createElement("tr");
+          var col = document.createElement("td");
+          col.appendChild(document.createTextNode("Time slot"));
+          row.appendChild(col);
+          col = document.createElement("td");
+          col.appendChild(document.createTextNode("Table 1"));
+          row.appendChild(col);
+          col = document.createElement("td");
+          col.appendChild(document.createTextNode("Table 2"));
+          row.appendChild(col);
+          table.appendChild(row);
+
           for (var i = 0; i < json.length; i++) {
             var row = document.createElement("tr");
 
@@ -37,7 +49,6 @@
 
             for (var j = 0; j < json[i].length; j++) {
               var col = document.createElement("td");
-              addText(col, "Table [" + i + ":" + j + "]");
               addText(col, "PAX: " + json[i][j]["pax"]);
               addText(col, "LVN: " + json[i][j]["lvn"]);
               col.appendChild(createRemindButton(json[i][j]["id"]));
