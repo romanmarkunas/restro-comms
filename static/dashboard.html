@@ -16,6 +16,7 @@
     <div class="card-body">
       <h5 class="card-title">Table reservation chart</h5>
       <table class="table .table-dark" id="reservation-chart" border="1"></table>
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
       <script>
         function updateTable() {
           $.getJSON("../tables", function(json) {
