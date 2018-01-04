@@ -11,7 +11,7 @@ import os
 import nexmo
 import calendar
 from jose import jwt
-
+from call import CallState, Call, NccoBuilder as nb
 
 
 class NCCOServer():
@@ -37,26 +37,29 @@ class NCCOServer():
         self.booking_service = BookingService()
         self.uuid_to_lvn = {}
         self.outbound_uuid_to_booking = {}
+        self.calls = {}
 
     @hug.object.get('/ncco')
-    def start_call(self):
+    def start_call(self, request):
+        call = Call(user_lvn=request.params['from'], state=CallState.CHOOSE_ACTION)
+        self.calls[request.params['conversation_uuid']] = call
         return [
             {
                 "action": "talk",
-                "text": "Thanks for calling Two Tables. Please select from the following options, " \
+                "text": "Thanks for calling Two Tables. Please select from the following options, "
                         "1 for booking or 2 for cancelling.",
                 "voiceName": "Russell",
                 "bargeIn": True
             },
             {
                 "action": "input",
-                "eventUrl": [self.domain + NCCOServer.NCCO_INPUT]
+                "eventUrl": [self.domain + NCCOServer.NCCO_INPUT + "?state=" + call.get_state_val()],
+                "eventMethod": "GET"
             }
         ]
 
-    @hug.object.post(NCCO_INPUT)
-    def ncco_input_response(self, body=None):
-        dtmf = body["dtmf"]
+    @hug.object.get(NCCO_INPUT)
+    def ncco_input_response(self, state=None, dtmf=None):
         if dtmf == "1":
             return [
                 {
