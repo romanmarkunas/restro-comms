@@ -7,7 +7,6 @@ from datetime import datetime
 from base64 import urlsafe_b64encode
 from threading import Thread
 import os
-import nexmo
 import calendar
 from jose import jwt
 from call import CallState, Call, NccoBuilder
@@ -40,9 +39,11 @@ class NCCOServer:
 
     @hug.object.get('/ncco')
     def start_call(self, request):
-        call = Call(user_lvn=request.params['from'], state=CallState.CHOOSE_ACTION)
+        lvn = request.params['from']
+        number_insight_json = NCCOHelper.get_call_info(lvn)
+        caller_name = number_insight_json["caller_name"]
+        call = Call(user_lvn=lvn, state=CallState.CHOOSE_ACTION, is_mobile=number_insight_json["original_carrier"] == "mobile")
         self.calls[request.params['conversation_uuid']] = call
-        caller_name = NCCOHelper.get_call_info(call.get_lvn())["caller_name"]
         return NccoBuilder().customer_call_greeting(NCCOHelper.get_caller_name(caller_name)).with_input(
             self.domain + NCCOServer.NCCO_INPUT
         ).build()
@@ -95,6 +96,8 @@ class NCCOServer:
             del self.calls[uuid]
 
             if result:
+                if call.get_is_mobile:
+                    NCCOHelper.send_sms(call.get_lvn(), "You booking for " + self.booking_service.hour_to_slot(booking_time) + " has been confirmed.")
                 return NccoBuilder().book(str(self.booking_service.hour_to_slot(booking_time))).build()
             else:
                 self.booking_service.put_to_wait(hour=booking_time, pax=pax, customer_number=customer_number)
