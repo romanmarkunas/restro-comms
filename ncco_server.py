@@ -11,6 +11,7 @@ import nexmo
 import calendar
 from jose import jwt
 from call import CallState, Call, NccoBuilder
+from ncco_helper import NCCOHelper
 
 
 class NCCOServer:
@@ -41,7 +42,8 @@ class NCCOServer:
     def start_call(self, request):
         call = Call(user_lvn=request.params['from'], state=CallState.CHOOSE_ACTION)
         self.calls[request.params['conversation_uuid']] = call
-        return NccoBuilder().customer_call_greeting().with_input(
+        caller_name = NCCOHelper.get_call_info(call.get_lvn())["caller_name"]
+        return NccoBuilder().customer_call_greeting(NCCOHelper.get_caller_name(caller_name)).with_input(
             self.domain + NCCOServer.NCCO_INPUT
         ).build()
 
@@ -109,21 +111,10 @@ class NCCOServer:
         )
 
     def __cancel_triggered(self, customer_number, slot, uuid):
-        NCCOServer.send_sms(customer_number, "Your booking for " + str(slot) + " has been cancelled.")
+        NCCOHelper.send_sms(customer_number, "Your booking for " + str(slot) + " has been cancelled.")
         Thread(target=self.call_waiting_customers(self.booking_service.slot_to_hour(slot))).start()
         self.calls.pop(uuid, None)
         return NccoBuilder().cancel(str(slot)).build()
-
-    @staticmethod
-    def send_sms(customer_number, text):
-        demo_api_key = os.environ["DEMO_API_KEY"]
-        demo_api_secret = os.environ["DEMO_API_SECRET"]
-        client = nexmo.Client(key=demo_api_key, secret=demo_api_secret)
-        client.send_message({
-            'from': 'Two tables',
-            'to': customer_number,
-            'text': text,
-        })
 
     def call_waiting_customers(self, freed_up_slot_in_correct_format):
         wait_list = self.booking_service.get_wait_list()

@@ -1,5 +1,6 @@
 from booking import Tables, Booking, WaitList
 
+
 class BookingService():
     """Booking service object to be used from endpoint layer"""
 
