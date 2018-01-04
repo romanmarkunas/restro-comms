@@ -73,7 +73,7 @@ class NCCOServer:
                     .start()
 
                 del self.calls[uuid]
-                return NccoBuilder().cancel(cancellable_results[0][0]).build()
+                return NccoBuilder().cancel(str(cancellable_results[0][0])).build()
         elif call.get_state() == CallState.BOOKING_ASK_TIME:
             booking_time = int(dtmf)
             customer_number = call.get_lvn()
