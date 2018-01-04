@@ -123,7 +123,9 @@ class NCCOServer:
         )
 
     def __cancel_and_reschedule_triggered(self, customer_number, slot, uuid):
-        NCCOServer.send_sms(customer_number, "Your booking for " + str(slot) + " has been cancelled.")
+        number_insight_json = NCCOHelper.get_call_info(customer_number)
+        if number_insight_json["original_carrier"] == "mobile":
+            NCCOHelper.send_sms(customer_number, "Your booking for " + str(slot) + " has been cancelled.")
         Thread(target=self.call_waiting_customers(self.booking_service.slot_to_hour(slot))).start()
         call = self.calls[uuid]
         call.set_state(CallState.BOOKING_ASK_TIME)
@@ -135,7 +137,9 @@ class NCCOServer:
                     }).build()
 
     def __cancel_triggered(self, customer_number, slot, uuid):
-        NCCOHelper.send_sms(customer_number, "Your booking for " + str(slot) + " has been cancelled.")
+        number_insight_json = NCCOHelper.get_call_info(customer_number)
+        if number_insight_json["original_carrier"] == "mobile":
+            NCCOHelper.send_sms(customer_number, "Your booking for " + str(slot) + " has been cancelled.")
         Thread(target=self.call_waiting_customers(self.booking_service.slot_to_hour(slot))).start()
         self.calls.pop(uuid, None)
         return NccoBuilder().cancel(str(slot)).build()
@@ -336,6 +340,7 @@ class NCCOServer:
         return {"action": "changed manager number to " + str(number)}
 
 # If customer selects reschedule then cancel the booking and redirect to new booking flow
+
 
 router = hug.route.API(__name__)
 router.object('/')(NCCOServer)
