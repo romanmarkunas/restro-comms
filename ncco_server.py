@@ -310,16 +310,6 @@ class NCCOServer:
             self.uuid_to_lvn[uuid] = body["to"]
             print("Outbound event UUID is: " + uuid + " and " + "to is: " + body["to"])
 
-    @hug.object.post("/blah")
-    def blah(self, pax=None):
-        alternatives = []
-        self.booking_service.book(20, int(pax), "1234", alternatives)
-
-    @hug.object.post("/blah1")
-    def blah1(self, request=None, body=None):
-        alternatives = []
-        self.booking_service.book(18, 4, "12344", alternatives)
-
     @hug.object.get('/tables')
     def tables(self):
         return self.booking_service.get_tables()

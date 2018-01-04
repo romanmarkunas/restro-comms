@@ -10,8 +10,6 @@ class CallState(Enum):
     BOOKING_DO = "do_booking"
     CANCELLING = "cancel"
     REMINDING = "remind"
-    RESCHEDULE = "reschedule"
-
 
 class Call:
 
