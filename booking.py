@@ -4,6 +4,7 @@
 # TODO - split Tables into Table and Tables
 # TODO - there is assumption that only one LVN can appear in all bookings
 
+
 class Booking():
     """Data class, representing single table booking"""
 
@@ -14,6 +15,7 @@ class Booking():
         self.id = Booking.last_used_id
         self.customer_number = customer_number
         self.pax = pax
+
 
 class Tables():
     """Collection of table bookings throughout a day. For simplicity we decided
@@ -94,6 +96,7 @@ class Tables():
             if booking != None and booking.customer_number == customer_number:
                 bookings.append((slot, booking))
         return bookings
+
 
 class WaitList():
     """List of bookings which may only be populated from end, but any item can

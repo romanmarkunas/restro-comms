@@ -98,5 +98,63 @@
       </script>
       </div>
     </div>
+  <div class="card text-center">
+    <h5 class="card-header">Two Tables</h5>
+    <div class="card-body">
+      <h5 class="card-title">Wait list chart</h5>
+      <table class="table .table-dark" id="wait-list-chart" border="1"></table>
+      <script>
+        function updateWaitListTable() {
+          $.getJSON("../waitlist", function(json) {
+              doUpdateWaitListTable(json);
+            })
+        }
+
+        function doUpdateWaitListTable(json){
+          var table = document.getElementById("wait-list-chart");
+          while (table.firstChild) {
+            table.removeChild(table.firstChild);
+          }
+
+          var row = document.createElement("tr");
+          var col = document.createElement("td");
+          col.appendChild(document.createTextNode("Time slot"));
+          row.appendChild(col);
+          col = document.createElement("td");
+          col.appendChild(document.createTextNode("LVN"));
+          row.appendChild(col);
+          col = document.createElement("td");
+          col.appendChild(document.createTextNode("PAX"));
+          row.appendChild(col);
+          table.appendChild(row);
+
+          for (var i = 0; i < json.length; i++) {
+            var row = document.createElement("tr");
+
+
+            for (var j = 0; j < json[i].length; j++) {
+              var col = document.createElement("td");
+              if(j == 0){
+                var hour = json[i][j];
+                addText(col, hour + ":00 - " + (hour + 1) + ":00");
+              }else{
+                addText(col, json[i][j]);
+              }
+
+              row.appendChild(col);
+            }
+
+            table.appendChild(row);
+          }
+
+        }
+
+        setInterval(function(){
+          updateWaitListTable();
+        }, 2000)
+
+      </script>
+      </div>
+    </div>
   </body>
 </html>

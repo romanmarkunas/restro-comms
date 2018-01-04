@@ -13,10 +13,11 @@ class CallState(Enum):
 
 class Call:
 
-    def __init__(self, user_lvn, state=CallState.STARTED):
+    def __init__(self, user_lvn, state=CallState.STARTED, is_mobile=True):
         self.user_lvn = str(user_lvn)
         self.state = state
         self.saved_vars = {}
+        self.is_mobile = is_mobile
 
     def get_lvn(self):
         return self.user_lvn
@@ -36,15 +37,18 @@ class Call:
     def get_var(self, key):
         return self.saved_vars[key]
 
+    def get_is_mobile(self):
+        return self.is_mobile
+
 
 class NccoBuilder:
 
     def __init__(self):
         self.ncco = []
 
-    def customer_call_greeting(self):
+    def customer_call_greeting(self, name):
         self.ncco.append(NccoBuilder.__talk(
-            "Thanks for calling Two Tables. Please key in 1 for booking 2 "
+            "Thanks for calling Two Tables " + name + ". Please key in 1 for booking 2 "
             "for cancelling or 3 to reschedule. Alternatively press 0 and hash key any time"
             "during this call to speak to manager"
         ))
