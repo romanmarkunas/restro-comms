@@ -30,6 +30,7 @@ class NCCOServer:
 
     def __init__(self):
         self.lvn = "447418397022"
+        self.manager_lvn = "447426007676"
         self.domain = "http://booktwotables.herokuapp.com"
         self.booking_service = BookingService()
         self.uuid_to_lvn = {}
@@ -49,6 +50,22 @@ class NCCOServer:
         dtmf = body['dtmf']
         uuid = body['conversation_uuid']
         call = self.calls[uuid]
+
+        if dtmf == "0":
+            del self.calls[uuid]
+            return [{
+                "action": "record",
+                "eventUrl": [self.domain + NCCOServer.EVENT]
+            }, {
+                "action": "connect",
+                "eventUrl": [self.domain + NCCOServer.EVENT],
+                "from": self.lvn,
+                "endpoint": [{
+                    "type": "phone",
+                    "number": self.manager_lvn
+                }]
+            }]
+
         if call.get_state() == CallState.CHOOSE_ACTION:
             if dtmf == "1":
                 call.set_state(CallState.BOOKING_ASK_TIME)

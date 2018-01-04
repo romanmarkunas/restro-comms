@@ -45,7 +45,8 @@ class NccoBuilder:
     def customer_call_greeting(self):
         self.ncco.append(NccoBuilder.__talk(
             "Thanks for calling Two Tables. Please key in 1 for booking or 2 "
-            "for cancelling."
+            "for cancelling. Alternatively press 0 and hash key any time"
+            "during this call to speak to manager"
         ))
         return self
 
