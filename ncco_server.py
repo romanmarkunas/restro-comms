@@ -96,7 +96,7 @@ class NCCOServer:
 
             if result:
                 if call.get_is_mobile:
-                    NCCOHelper.send_sms(call.get_lvn(), "You booking for " + self.booking_service.hour_to_slot(booking_time) + " has been confirmed.")
+                    NCCOHelper.send_sms(call.get_lvn(), "You booking for " + str(self.booking_service.hour_to_slot(booking_time)) + " has been confirmed.")
                 return NccoBuilder().book(str(self.booking_service.hour_to_slot(booking_time))).build()
             else:
                 self.booking_service.put_to_wait(hour=booking_time, pax=pax, customer_number=customer_number)
