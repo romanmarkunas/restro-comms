@@ -71,26 +71,23 @@ class NCCOServer:
 
         if call.get_state() == CallState.CHOOSE_ACTION:
             if dtmf == "1":
-                call.set_state(CallState.BOOKING_ASK_TIME)
-                return NccoBuilder().select_time().with_input(
-                    self.domain + NCCOServer.NCCO_INPUT,
-                    extra_params={
-                        "submitOnHash": True,
-                        "timeOut": 15
-                    }
-                ).build()
+                return self.__switch_to_ask_time(call=call)
             elif dtmf == "2":
                 return self.__do_cancel(customer_number=call.get_lvn(), uuid=uuid)
             elif dtmf == "3":
                 return self.__do_cancel_and_reschedule(customer_number=call.get_lvn(), uuid=uuid)
         elif call.get_state() == CallState.BOOKING_ASK_TIME:
-            call.save_var('time', int(dtmf))
-            call.set_state(CallState.BOOKING_ASK_PAX)
-            return NccoBuilder().select_pax().with_input(
-                self.domain + NCCOServer.NCCO_INPUT
-            ).build()
+            time = int(dtmf)
+            if time < 12 or time > 21:
+                return self.__switch_to_ask_time(call=call)
+            else:
+                call.save_var('time', time)
+                return self.__switch_to_ask_pax(call=call)
         elif call.get_state() == CallState.BOOKING_ASK_PAX:
             pax = int(dtmf)
+            if pax < 1 or pax > 4:
+                return self.__switch_to_ask_pax(call=call)
+            
             booking_time = call.get_var('time')
             customer_number = call.get_lvn()
             alternatives = []
@@ -142,6 +139,22 @@ class NCCOServer:
         Thread(target=self.call_waiting_customers(self.booking_service.slot_to_hour(slot))).start()
         self.calls.pop(uuid, None)
         return NccoBuilder().cancel(str(slot)).build()
+
+    def __switch_to_ask_time(self, call):
+        call.set_state(CallState.BOOKING_ASK_TIME)
+        return NccoBuilder().select_time().with_input(
+            self.domain + NCCOServer.NCCO_INPUT,
+            extra_params={
+                "submitOnHash": True,
+                "timeOut": 15
+            }
+        ).build()
+
+    def __switch_to_ask_pax(self, call):
+        call.set_state(CallState.BOOKING_ASK_PAX)
+        return NccoBuilder().select_pax().with_input(
+            self.domain + NCCOServer.NCCO_INPUT
+        ).build()
 
     def call_waiting_customers(self, freed_up_slot_in_correct_format):
         wait_list = self.booking_service.get_wait_list()
