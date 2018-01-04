@@ -1,7 +1,6 @@
 """This endpoint will serve NCCO objects required by Nexmo VAPI"""
 
 import hug
-import uuid as uuid_generator
 import requests
 from booking_service import BookingService
 from datetime import datetime
@@ -11,10 +10,10 @@ import os
 import nexmo
 import calendar
 from jose import jwt
+from call import CallState, Call, NccoBuilder
 
 
-
-class NCCOServer():
+class NCCOServer:
 
     EVENT = "/event"
 
@@ -22,7 +21,6 @@ class NCCOServer():
     REMIND_START = "/remind/start"
 
     NCCO_INPUT = "/ncco/input"
-    NCCO_INPUT_BOOKING = '/ncco/input/booking'
 
     WAITING_INPUT = "/waiting/input"
     WAITING_START = "/waiting/start"
@@ -32,68 +30,89 @@ class NCCOServer():
 
     def __init__(self):
         self.lvn = "447418397022"
-        self.domain = "booktwotables.herokuapp.com"
+        self.manager_lvn = "447426007676"
+        self.domain = "http://booktwotables.herokuapp.com"
         self.booking_service = BookingService()
         self.uuid_to_lvn = {}
         self.outbound_uuid_to_booking = {}
+        self.calls = {}
 
     @hug.object.get('/ncco')
-    def start_call(self):
-        return [
-            {
-                "action": "talk",
-                "text": "Thanks for calling Two Tables. Please select from the following options, " \
-                        "1 for booking or 2 for cancelling.",
-                "voiceName": "Russell",
-                "bargeIn": True
-            },
-            {
-                "action": "input",
-                "eventUrl": ["http://" + self.domain + NCCOServer.NCCO_INPUT]
-            }
-        ]
+    def start_call(self, request):
+        call = Call(user_lvn=request.params['from'], state=CallState.CHOOSE_ACTION)
+        self.calls[request.params['conversation_uuid']] = call
+        return NccoBuilder().customer_call_greeting().with_input(
+            self.domain + NCCOServer.NCCO_INPUT
+        ).build()
 
     @hug.object.post(NCCO_INPUT)
     def ncco_input_response(self, body=None):
-        dtmf = body["dtmf"]
-        if dtmf == "1":
-            return [
-                {
-                    "action": "talk",
-                    "voiceName": "Russell",
-                    "text": "Excellent, please enter the time you'd like in the 24 hour" \
-                            "format followed by the hash key.",
-                    "bargeIn": True
-                },
-                {
-                    "action": "input",
-                    "submitOnHash": True,
-                    "timeOut": 10,
-                    "eventUrl": ["http://" + self.domain + NCCOServer.NCCO_INPUT_BOOKING]
-                }
-            ]
-        elif dtmf == "2":
-            customer_number = self.uuid_to_lvn[body["uuid"]]
-            cancellable_results = self.booking_service.find_bookings(customer_number)
-            cancelled_slot = str(cancellable_results[0][0])
-            # ASSUMPTION we will always cancel the first booking for a particular customer.
-            self.booking_service.cancel(cancellable_results[0][1].id)
+        dtmf = body['dtmf']
+        uuid = body['conversation_uuid']
+        call = self.calls[uuid]
 
-            NCCOServer.send_sms(customer_number, "Your booking for " + cancelled_slot + "pm has been cancelled.")
+        if dtmf == "0" or dtmf == "0#":
+            del self.calls[uuid]
+            return [{
+                "action": "record",
+                "eventUrl": [self.domain + NCCOServer.EVENT]
+            }, {
+                "action": "connect",
+                "eventUrl": [self.domain + NCCOServer.EVENT],
+                "from": self.lvn,
+                "endpoint": [{
+                    "type": "phone",
+                    "number": self.manager_lvn
+                }]
+            }]
 
-            Thread(target=self.call_waiting_customers(self.booking_service.slot_to_hour(cancellable_results[0][0]))) \
-                .start()
+        if call.get_state() == CallState.CHOOSE_ACTION:
+            if dtmf == "1":
+                call.set_state(CallState.BOOKING_ASK_TIME)
+                return NccoBuilder().select_time().with_input(
+                    self.domain + NCCOServer.NCCO_INPUT,
+                    extra_params={
+                        "submitOnHash": True,
+                        "timeOut": 15
+                    }
+                ).build()
+            elif dtmf == "2":
+                return self.__do_cancel(customer_number=call.get_lvn(), uuid=uuid)
+        elif call.get_state() == CallState.BOOKING_ASK_TIME:
+            call.save_var('time', int(dtmf))
+            call.set_state(CallState.BOOKING_ASK_PAX)
+            return NccoBuilder().select_pax().with_input(
+                self.domain + NCCOServer.NCCO_INPUT
+            ).build()
+        elif call.get_state() == CallState.BOOKING_ASK_PAX:
+            pax = int(dtmf)
+            booking_time = call.get_var('time')
+            customer_number = call.get_lvn()
+            alternatives = []
+            result = self.booking_service.book(hour=booking_time, pax=pax, alternatives=alternatives, customer_number=customer_number)
+            del self.calls[uuid]
 
-            return [
-                {
-                    "action": "talk",
-                    "voiceName": "Russell",
-                    "text": "We're sorry to hear you are cancelling your reservation " \
-                            "for" + str(cancellable_results[0][0]) + " pm, an SMS " \
-                            "has been sent to confirm we have cancelled your booking, but we hope to " \
-                             "see you real soon" + NCCOServer.SIGN_OFF
-                }
-            ]
+            if result:
+                return NccoBuilder().book(str(self.booking_service.hour_to_slot(booking_time))).build()
+            else:
+                self.booking_service.put_to_wait(hour=booking_time, pax=pax, customer_number=customer_number)
+                return NccoBuilder().wait(str(self.booking_service.hour_to_slot(booking_time))).build()
+
+    def __do_cancel(self, customer_number, uuid):
+        cancellable_results = self.booking_service.find_bookings(customer_number)
+        # ASSUMPTION we will always cancel the first booking for a particular customer.
+        self.booking_service.cancel(cancellable_results[0][1].id)
+        return self.__cancel_triggered(
+            customer_number=customer_number,
+            uuid=uuid,
+            slot=cancellable_results[0][0]
+        )
+
+    def __cancel_triggered(self, customer_number, slot, uuid):
+        NCCOServer.send_sms(customer_number, "Your booking for " + str(slot) + " has been cancelled.")
+        Thread(target=self.call_waiting_customers(self.booking_service.slot_to_hour(slot))).start()
+        self.calls.pop(uuid, None)
+        return NccoBuilder().cancel(str(slot)).build()
 
     @staticmethod
     def send_sms(customer_number, text):
@@ -123,8 +142,8 @@ class NCCOServer():
                             "type": "phone",
                             "number": self.lvn
                         },
-                        "answer_url": ["http://" + self.domain + NCCOServer.WAITING_START],
-                        "event_url": ["http://" + self.domain + NCCOServer.EVENT]
+                        "answer_url": [self.domain + NCCOServer.WAITING_START],
+                        "event_url": [self.domain + NCCOServer.EVENT]
                     })
                 uuid = response.json()["conversation_uuid"]
                 print("Customers booking ID: " + str(customer_waiting[1].id))
@@ -153,7 +172,7 @@ class NCCOServer():
             },
             {
                 "action": "input",
-                "eventUrl": ["http://" + self.domain + NCCOServer.WAITING_INPUT]
+                "eventUrl": [self.domain + NCCOServer.WAITING_INPUT]
             }
         ]
 
@@ -199,48 +218,14 @@ class NCCOServer():
                 }
             ]
 
-    @hug.object.post(NCCO_INPUT_BOOKING)
-    def ncco_input_booking_response(self, body=None):
-        uuid = body["uuid"]
-        booking_time = int(body["dtmf"])
-        customer_number = self.uuid_to_lvn[uuid]
-        alternatives = []
-        result = self.booking_service.book(hour=booking_time, pax=4, alternatives=alternatives, customer_number=customer_number)
-
-        if result:
-            print("Booking table @" + str(booking_time) + " for LVN " + str(customer_number))
-            self.uuid_to_lvn.pop(uuid, None)
-            return [
-                {
-                    "action": "talk",
-                    "voiceName": "Russell",
-                    "text": "Fantastic, your booking has been successful, we'll " \
-                            "see you at " + str(self.booking_service.hour_to_slot(booking_time)) + " pm. "\
-                            "Thank you good bye."
-                }
-            ]
-        else:
-            print("Added to waiting list for @" + str(booking_time) + " for LVN " + str(customer_number))
-            self.booking_service.put_to_wait(hour=booking_time, pax=4, customer_number=customer_number)
-            return [
-                {
-                    "action": "talk",
-                    "voiceName": "Russell",
-                    "text": "We're deeply saddened but this time "\
-                            "at " + str(self.booking_service.hour_to_slot(booking_time)) + " pm is currently " \
-                            "full, you've been added to the waiting list and we'll call you immediately once the " \
-                            "slot becomes free" + NCCOServer.SIGN_OFF
-                }
-            ]
-
     @hug.object.post('/remind/trigger')
-    def remind_trigger_call(self, body = None):
+    def remind_trigger_call(self, body=None):
         booking_id = int(body["id"])
         booking = self.booking_service.find(booking_id)[1]
         response = requests.post(
             "https://api.nexmo.com/v1/calls",
-            headers = { "Authorization": "Bearer " + self.__generate_jwt() },
-            json = {
+            headers={"Authorization": "Bearer " + self.__generate_jwt()},
+            json={
                 "to": [{
                     "type": "phone",
                     "number": str(booking.customer_number)
@@ -249,57 +234,44 @@ class NCCOServer():
                     "type": "phone",
                     "number": self.lvn
                 },
-                "answer_url": ["http://" + self.domain + NCCOServer.REMIND_START],
-                "event_url": ["http://" + self.domain + NCCOServer.EVENT]
+                "answer_url": [self.domain + NCCOServer.REMIND_START],
+                "event_url": [self.domain + NCCOServer.EVENT]
             })
         uuid = response.json()["conversation_uuid"]
         self.outbound_uuid_to_booking[uuid] = booking_id
 
     def __generate_jwt(self):
         return jwt.encode(
-            claims = {
+            claims={
                 "iat": calendar.timegm(datetime.utcnow().utctimetuple()),
                 "application_id": NCCOServer.APPLICATION_ID,
                 "jti": urlsafe_b64encode(os.urandom(64)).decode('utf-8')
             },
-            key = os.environ["PRIVATE_KEY"],
-            algorithm = 'RS256')
+            key=os.environ["PRIVATE_KEY"],
+            algorithm='RS256')
 
     @hug.object.get(REMIND_START)
-    def remind_start_ncco(self, conversation_uuid = None): # why Nexmo do not provide uuid here?
+    def remind_start_ncco(self, conversation_uuid=None):
         booking_id = self.outbound_uuid_to_booking[conversation_uuid]
         time = self.booking_service.find(booking_id)[0]
-        return [{
-            "action": "talk",
-            "voiceName": "Russell",
-            "text": "Hi, this is Two Tables. Just checking you are still " \
-                    "ok for your reservation at " + str(time) + " pm? " \
-                    "Press 1 for yes, 2 for cancel or any other key to repeat.",
-            "bargeIn": True
-        },
-            {
-                "action": "input",
-                "eventUrl": ["http://" + self.domain + NCCOServer.REMIND_INPUT]
-            }]
+        return NccoBuilder().remind(str(time)).with_input(
+            self.domain + NCCOServer.REMIND_INPUT
+        ).build()
 
     @hug.object.post(REMIND_INPUT)
     def remind_input_response(self, body = None):
         dtmf = body["dtmf"]
         uuid = body["conversation_uuid"]
         if dtmf == "1":
-            return [{
-                "action": "talk",
-                "voiceName": "Russell",
-                "text": "Outstanding, we look forward to seeing you soon" + NCCOServer.SIGN_OFF
-            }]
+            return NccoBuilder().remind_confirmed().build()
         elif dtmf == "2":
             booking_id = self.outbound_uuid_to_booking[uuid]
-            self.booking_service.cancel(booking_id)
-            return [{
-                "action": "talk",
-                "voiceName": "Russell",
-                "text": "We are devastated but your booking has now been cancelled" + NCCOServer.SIGN_OFF
-            }]
+            booking = self.booking_service.cancel(booking_id)
+            return self.__cancel_triggered(
+                customer_number=booking[1].customer_number,
+                uuid=uuid,
+                slot=int(booking[0])
+            )
         else:
             return self.remind_start_ncco(uuid)
 
@@ -318,14 +290,16 @@ class NCCOServer():
     def tables(self):
         return self.booking_service.get_tables()
 
-    @hug.object.get("/hold-tune", output = hug.output_format.file)
-    def hold_music(self):
-        return open('static/bensound-thejazzpiano.mp3', mode='rb')
-
     @hug.object.get("/dashboard", output = hug.output_format.html)
     def dashboard(self):
         with open("static/dashboard.html") as page:
             return page.read()
+
+    @hug.object.get("/manager")
+    def change_manager_number(self, number=None):
+        self.manager_lvn = str(number)
+        return {"action": "changed manager number to " + str(number)}
+
 
 router = hug.route.API(__name__)
 router.object('/')(NCCOServer)
