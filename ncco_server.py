@@ -77,19 +77,7 @@ class NCCOServer:
                     }
                 ).build()
             elif dtmf == "2":
-                customer_number = call.get_lvn()
-                cancellable_results = self.booking_service.find_bookings(customer_number)
-                cancelled_slot = str(cancellable_results[0][0])
-                # ASSUMPTION we will always cancel the first booking for a particular customer.
-                self.booking_service.cancel(cancellable_results[0][1].id)
-
-                NCCOServer.send_sms(customer_number, "Your booking for " + cancelled_slot + "pm has been cancelled.")
-
-                Thread(target=self.call_waiting_customers(self.booking_service.slot_to_hour(cancellable_results[0][0]))) \
-                    .start()
-
-                del self.calls[uuid]
-                return NccoBuilder().cancel(str(cancellable_results[0][0])).build()
+                return self.__do_cancel(customer_number=call.get_lvn(), uuid=uuid)
         elif call.get_state() == CallState.BOOKING_ASK_TIME:
             call.save_var('time', int(dtmf))
             call.set_state(CallState.BOOKING_ASK_PAX)
@@ -110,6 +98,23 @@ class NCCOServer:
                 self.booking_service.put_to_wait(hour=booking_time, pax=pax, customer_number=customer_number)
                 return NccoBuilder().wait(str(self.booking_service.hour_to_slot(booking_time))).build()
 
+    def __do_cancel(self, customer_number, uuid):
+        cancellable_results = self.booking_service.find_bookings(customer_number)
+        # ASSUMPTION we will always cancel the first booking for a particular customer.
+        self.booking_service.cancel(cancellable_results[0][1].id)
+        return self.__cancel_triggered(
+            customer_number=customer_number,
+            uuid=uuid,
+            slot=cancellable_results[0][0]
+        )
+
+    def __cancel_triggered(self, customer_number, slot, uuid):
+        NCCOServer.send_sms(customer_number, "Your booking for " + str(slot) + "pm has been cancelled.")
+
+        Thread(target=self.call_waiting_customers(self.booking_service.slot_to_hour(slot))).start()
+
+        del self.calls[uuid]
+        return NccoBuilder().cancel(str(slot)).build()
 
     @staticmethod
     def send_sms(customer_number, text):
@@ -264,7 +269,11 @@ class NCCOServer:
         elif dtmf == "2":
             booking_id = self.outbound_uuid_to_booking[uuid]
             booking = self.booking_service.cancel(booking_id)
-            return NccoBuilder().cancel(booking[0]).build()
+            return self.__cancel_triggered(
+                customer_number=booking[1].customer_number,
+                uuid=uuid,
+                slot=int(booking[0])
+            )
         else:
             return self.remind_start_ncco(uuid)
 
