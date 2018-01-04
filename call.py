@@ -10,6 +10,7 @@ class CallState(Enum):
     BOOKING_DO = "do_booking"
     CANCELLING = "cancel"
     REMINDING = "remind"
+    RESCHEDULE = "reschedule"
 
 
 class Call:
@@ -45,8 +46,8 @@ class NccoBuilder:
 
     def customer_call_greeting(self):
         self.ncco.append(NccoBuilder.__talk(
-            "Thanks for calling Two Tables. Please key in 1 for booking or 2 "
-            "for cancelling. Alternatively press 0 and hash key any time"
+            "Thanks for calling Two Tables. Please key in 1 for booking 2 "
+            "for cancelling or 3 to reschedule. Alternatively press 0 and hash key any time"
             "during this call to speak to manager"
         ))
         return self
@@ -68,6 +69,15 @@ class NccoBuilder:
         self.ncco.append(NccoBuilder.__talk(
             "Thanks for letting us know! Your reservation for" + hour + " was"
             "cancelled. Bye!",
+            barge_in=False
+        ))
+        return self
+
+    def cancel_and_reschedule(self, hour):
+        self.ncco.append(NccoBuilder.__talk(
+            "Thanks for letting us know! Your reservation for" + hour + " was"
+            "cancelled. Please enter the new time between 12 and 21 hours followed "
+            "by the hash key!",
             barge_in=False
         ))
         return self

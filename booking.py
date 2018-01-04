@@ -40,11 +40,14 @@ class Tables():
 
     def book(self, slot, booking):
         if (booking.pax > Tables.PAX_PER_TABLE):
+            print("aaa")
             self.table1[slot] = booking
             self.table2[slot] = booking
         elif self.__free(self.table1, slot):
+            print("bbb")
             self.table1[slot] = booking
         else:
+            print("ccc")
             self.table2[slot] = booking
 
     def cancel_booking(self, booking_id):
