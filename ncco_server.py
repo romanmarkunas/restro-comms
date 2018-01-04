@@ -81,10 +81,8 @@ class NCCOServer:
             result = self.booking_service.book(hour=booking_time, pax=4, alternatives=alternatives, customer_number=customer_number)
 
             if result:
-                print("Booking table @" + dtmf + " for LVN " + str(customer_number))
                 return NccoBuilder().book(str(self.booking_service.hour_to_slot(booking_time))).build()
             else:
-                print("Added to waiting list for @" + str(booking_time) + " for LVN " + str(customer_number))
                 self.booking_service.put_to_wait(hour=booking_time, pax=4, customer_number=customer_number)
                 return NccoBuilder().wait(str(self.booking_service.hour_to_slot(booking_time))).build()
 
