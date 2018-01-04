@@ -8,6 +8,7 @@ class CallState(Enum):
     BOOKING_ASK_TIME = "ask_time"
     BOOKING_ASK_PAX = "ask_pax"
     BOOKING_DO = "do_booking"
+    CANCELLING = "cancel"
 
 
 class Call:
@@ -37,11 +38,44 @@ class NccoBuilder:
     def customer_call_greeting(self):
         self.ncco.append(NccoBuilder.__talk(
             "Thanks for calling Two Tables. Please key in 1 for booking or 2 "
-            "for cancelling."))
+            "for cancelling."
+        ))
         return self
 
-    def with_input(self, loc, method="GET", call=None):
-        self.ncco.append(NccoBuilder.__input(loc=loc, method=method, call=call))
+    def select_time(self):
+        self.ncco.append(NccoBuilder.__talk(
+            "Excellent, please enter the time between 12 and 21 hours followed "
+            "by the hash key."
+        ))
+        return self
+
+    def cancel(self, hour):
+        self.ncco.append(NccoBuilder.__talk(
+            "Thanks for letting us know! Your reservation for" + hour + "pm was"
+            "cancelled. You should receive confirmation SMS soon. Bye!",
+            barge_in=False
+        ))
+        return self
+
+    def book(self, hour):
+        self.ncco.append(NccoBuilder.__talk(
+            "Fantastic, your booking has been successful, we'll see you "
+            "at " + hour + " pm. Bye!",
+            barge_in=False
+        ))
+        return self
+
+    def wait(self, hour):
+        self.ncco.append(NccoBuilder.__talk(
+            "I'm sorry, but " + hour + " pm is currently full, you've been "
+            "added to the waiting list and we'll call you immediately once the "
+            "slot becomes available. Bye!",  # TODO - better propose other time
+            barge_in=False
+        ))
+        return self
+
+    def with_input(self, loc, extra_params=None):
+        self.ncco.append(NccoBuilder.__input(loc, extra_params=extra_params))
         return self
 
     def build(self):
@@ -57,16 +91,13 @@ class NccoBuilder:
         }
 
     @staticmethod
-    def __input(loc, method=None, call=None):
-        event_url = loc
-        if call is not None:
-            event_url += "?state=" + call.get_state_val()
-
+    def __input(loc, extra_params=None):
         ncco = {
             "action": "input",
-            "eventUrl": [event_url]
+            "eventUrl": [loc]
         }
-        if method is not None:
-            ncco["eventMethod"] = method
+
+        if extra_params is not None:
+            ncco.update(extra_params)
 
         return ncco
