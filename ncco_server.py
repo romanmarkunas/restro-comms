@@ -1,7 +1,6 @@
 """This endpoint will serve NCCO objects required by Nexmo VAPI"""
 
 import hug
-import uuid as uuid_generator
 import requests
 from booking_service import BookingService
 from datetime import datetime
@@ -200,13 +199,13 @@ class NCCOServer:
             ]
 
     @hug.object.post('/remind/trigger')
-    def remind_trigger_call(self, body = None):
+    def remind_trigger_call(self, body=None):
         booking_id = int(body["id"])
         booking = self.booking_service.find(booking_id)[1]
         response = requests.post(
             "https://api.nexmo.com/v1/calls",
-            headers = { "Authorization": "Bearer " + self.__generate_jwt() },
-            json = {
+            headers={"Authorization": "Bearer " + self.__generate_jwt()},
+            json={
                 "to": [{
                     "type": "phone",
                     "number": str(booking.customer_number)
@@ -223,49 +222,32 @@ class NCCOServer:
 
     def __generate_jwt(self):
         return jwt.encode(
-            claims = {
+            claims={
                 "iat": calendar.timegm(datetime.utcnow().utctimetuple()),
                 "application_id": NCCOServer.APPLICATION_ID,
                 "jti": urlsafe_b64encode(os.urandom(64)).decode('utf-8')
             },
-            key = os.environ["PRIVATE_KEY"],
-            algorithm = 'RS256')
+            key=os.environ["PRIVATE_KEY"],
+            algorithm='RS256')
 
     @hug.object.get(REMIND_START)
-    def remind_start_ncco(self, conversation_uuid = None): # why Nexmo do not provide uuid here?
+    def remind_start_ncco(self, conversation_uuid=None):
         booking_id = self.outbound_uuid_to_booking[conversation_uuid]
         time = self.booking_service.find(booking_id)[0]
-        return [{
-            "action": "talk",
-            "voiceName": "Russell",
-            "text": "Hi, this is Two Tables. Just checking you are still " \
-                    "ok for your reservation at " + str(time) + " pm? " \
-                    "Press 1 for yes, 2 for cancel or any other key to repeat.",
-            "bargeIn": True
-        },
-            {
-                "action": "input",
-                "eventUrl": [self.domain + NCCOServer.REMIND_INPUT]
-            }]
+        return NccoBuilder().remind(str(time)).with_input(
+            self.domain + NCCOServer.REMIND_INPUT
+        ).build()
 
     @hug.object.post(REMIND_INPUT)
     def remind_input_response(self, body = None):
         dtmf = body["dtmf"]
         uuid = body["conversation_uuid"]
         if dtmf == "1":
-            return [{
-                "action": "talk",
-                "voiceName": "Russell",
-                "text": "Outstanding, we look forward to seeing you soon" + NCCOServer.SIGN_OFF
-            }]
+            return NccoBuilder().remind_confirmed().build()
         elif dtmf == "2":
             booking_id = self.outbound_uuid_to_booking[uuid]
-            self.booking_service.cancel(booking_id)
-            return [{
-                "action": "talk",
-                "voiceName": "Russell",
-                "text": "We are devastated but your booking has now been cancelled" + NCCOServer.SIGN_OFF
-            }]
+            booking = self.booking_service.cancel(booking_id)
+            return NccoBuilder().cancel(booking[0]).build()
         else:
             return self.remind_start_ncco(uuid)
 

@@ -65,7 +65,7 @@ class NccoBuilder:
     def cancel(self, hour):
         self.ncco.append(NccoBuilder.__talk(
             "Thanks for letting us know! Your reservation for" + hour + "pm was"
-            "cancelled. You should receive confirmation SMS soon. Bye!",
+            "cancelled. Bye!",
             barge_in=False
         ))
         return self
@@ -83,6 +83,21 @@ class NccoBuilder:
             "I'm sorry, but " + hour + " pm is currently full, you've been "
             "added to the waiting list and we'll call you immediately once the "
             "slot becomes available. Bye!",  # TODO - better propose other time
+            barge_in=False
+        ))
+        return self
+
+    def remind(self, hour):
+        self.ncco.append(NccoBuilder.__talk(
+            "Hi, this is Two Tables. Just checking you are still ok for your "
+            "reservation at " + hour + " pm? Press 1 for yes, 2 for cancel or "
+            "any other key to repeat."
+        ))
+        return self
+
+    def remind_confirmed(self):
+        self.ncco.append(NccoBuilder.__talk(
+            "Outstanding, we look forward to seeing you soon. Bye!",
             barge_in=False
         ))
         return self
