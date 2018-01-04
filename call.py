@@ -65,7 +65,7 @@ class NccoBuilder:
 
     def cancel(self, hour):
         self.ncco.append(NccoBuilder.__talk(
-            "Thanks for letting us know! Your reservation for" + hour + " was"
+            "Thanks for letting us know! Your reservation for" + hour + " was "
             "cancelled. Bye!",
             barge_in=False
         ))
@@ -73,7 +73,7 @@ class NccoBuilder:
 
     def cancel_and_reschedule(self, hour):
         self.ncco.append(NccoBuilder.__talk(
-            "Thanks for letting us know! Your reservation for" + hour + " was"
+            "Thanks for letting us know! Your reservation for" + hour + " was "
             "cancelled. Please enter the new time between 12 and 21 hours followed "
             "by the hash key!",
             barge_in=False
