@@ -275,7 +275,7 @@ class NCCOServer:
 
             slot_booking = self.booking_service.get_wait_list()[index]
 
-            self.booking_service.book(int(call.get_var("slot")), int(call.get_var("pax")), slot_booking[1].customer_number, alternatives)
+            self.booking_service.book(self.booking_service.slot_to_hour(int(call.get_var("slot"))), int(call.get_var("pax")), slot_booking[1].customer_number, alternatives)
             self.booking_service.remove_from_wait_list(index)
             return [
                 {
