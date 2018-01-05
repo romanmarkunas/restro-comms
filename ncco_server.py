@@ -194,7 +194,13 @@ class NCCOServer:
     def call_waiting_customers(self, slot):
         wait_list = self.booking_service.get_wait_list()
         for customer_waiting in wait_list:
-            alternatives = self.booking_service.generate_alternatives(slot=customer_waiting[0], booking=self.booking_service.get_booking(pax=customer_waiting[2], lvn=customer_waiting[1]))
+            alternatives = self.booking_service.generate_alternatives(
+                slot=customer_waiting[0],
+                booking=self.booking_service.get_booking(
+                    pax=customer_waiting[1].pax,
+                    lvn=customer_waiting[1].customer_number
+                )
+            )
             for alt in alternatives:
                 if alt[0] == slot:
                     response = requests.post(
