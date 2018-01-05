@@ -63,7 +63,7 @@ class BookingService():
         waiting = self.get_wait_list()
         if waiting is not None:
             for slot, booking in waiting:
-                waiting_dict.append([slot, booking.customer_number, booking.pax])
+                waiting_dict.append([self.slot_to_hour(slot), booking.customer_number, booking.pax])
         return waiting_dict
 
     def clear_bookings(self):
