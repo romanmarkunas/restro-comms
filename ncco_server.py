@@ -156,7 +156,7 @@ class NCCOServer:
     def __cancel_and_reschedule_triggered(self, customer_number, slot, uuid):
         number_insight_json = NCCOHelper.get_call_info(customer_number)
         if number_insight_json["original_carrier"] == "mobile":
-            NCCOHelper.send_sms(customer_number, "Your booking for " + str(slot) + " has been cancelled.")
+            NCCOHelper.send_sms(customer_number, "Your booking for " + str(self.booking_service.slot_to_hour(slot)) + " has been cancelled.")
         Thread(target=self.call_waiting_customers(self.booking_service.slot_to_hour(slot))).start()
         call = self.calls[uuid]
         call.set_state(CallState.BOOKING_ASK_TIME)
@@ -170,7 +170,7 @@ class NCCOServer:
     def __cancel_triggered(self, customer_number, slot, uuid):
         number_insight_json = NCCOHelper.get_call_info(customer_number)
         if number_insight_json["original_carrier"] == "mobile":
-            NCCOHelper.send_sms(customer_number, "Your booking for " + str(slot) + " has been cancelled.")
+            NCCOHelper.send_sms(customer_number, "Your booking for " + str(self.booking_service.slot_to_hour(slot)) + " has been cancelled.")
         Thread(target=self.call_waiting_customers(self.booking_service.slot_to_hour(slot))).start()
         self.calls.pop(uuid, None)
         return NccoBuilder().cancel(str(slot)).build()
@@ -191,49 +191,42 @@ class NCCOServer:
             self.domain + NCCOServer.NCCO_INPUT
         ).build()
 
-    def call_waiting_customers(self, freed_up_slot_in_correct_format):
+    def call_waiting_customers(self, slot):
         wait_list = self.booking_service.get_wait_list()
         for customer_waiting in wait_list:
-            customer_waiting_slot_in_correct_format = self.booking_service.slot_to_hour(customer_waiting[0])
-            if customer_waiting_slot_in_correct_format == freed_up_slot_in_correct_format:
-                response = requests.post(
-                    "https://api.nexmo.com/v1/calls",
-                    headers={"Authorization": "Bearer " + self.__generate_jwt()},
-                    json={
-                        "to": [{
-                            "type": "phone",
-                            "number": str(customer_waiting[1].customer_number)
-                        }],
-                        "from": {
-                            "type": "phone",
-                            "number": self.lvn
-                        },
-                        "answer_url": [self.domain + NCCOServer.WAITING_START],
-                        "event_url": [self.domain + NCCOServer.EVENT]
-                    })
-                uuid = response.json()["conversation_uuid"]
-                print("Customers booking ID: " + str(customer_waiting[1].id))
-                print("Customers UUID: " + uuid)
-                break
+            alternatives = self.booking_service.generate_alternatives(slot=customer_waiting[0], booking=self.booking_service.get_booking(pax=customer_waiting[2], lvn=customer_waiting[1]))
+            for alt in alternatives:
+                if alt[0] == slot:
+                    response = requests.post(
+                        "https://api.nexmo.com/v1/calls",
+                        headers={"Authorization": "Bearer " + self.__generate_jwt()},
+                        json={
+                            "to": [{
+                                "type": "phone",
+                                "number": str(customer_waiting[1].customer_number)
+                            }],
+                            "from": {
+                                "type": "phone",
+                                "number": self.lvn
+                            },
+                            "answer_url": [self.domain + NCCOServer.WAITING_START + "?slot=" + str(slot) + "&pax=" + str(alt[1].pax)],
+                            "event_url": [self.domain + NCCOServer.EVENT]
+                        })
+                    uuid = response.json()["conversation_uuid"]
+                    print("Customers booking ID: " + str(customer_waiting[1].id))
+                    print("Customers UUID: " + uuid)
+                    return
 
     @hug.object.get(WAITING_START)
-    def start_waiting_call(self, request=None):
-
-        customer_number = request.params["to"]
-
-        def get_slot_using_customer_number(val):
-            return val[1].customer_number == customer_number
-
-        index = self.booking_service.wait_list.find(get_slot_using_customer_number)
-        slot_booking = self.booking_service.get_wait_list()[index]
+    def start_waiting_call(self, request=None, slot=None, pax=None):
 
         return [
             {
                 "action": "talk",
                 "voiceName": "Russell",
-                "text": "Hi there it's Two Tables with tremendous news, a booking slot " \
-                        "for " + str(slot_booking[0]) + "pm has become free, " \
-                        "press 1 to accept or 2 to remove yourself from the waiting list?",
+                "text": "Hi there it's Two Tables, a booking slot " \
+                        "for " + str(pax) + " people at " + str(self.booking_service.slot_to_hour(slot)) + " hours has become free, " \
+                        "press 1 to accept or 2 to pass",
                 "bargeIn": True
             },
             {
@@ -248,7 +241,7 @@ class NCCOServer:
         uuid = body["uuid"]
 
         customer_number = self.uuid_to_lvn[uuid]
-        self.uuid_to_lvn.pop(uuid)
+        self.uuid_to_lvn.pop(uuid, "")
 
         def get_slot_using_customer_number(val):
             return val[1].customer_number == customer_number
@@ -262,13 +255,13 @@ class NCCOServer:
 
             slot_booking = self.booking_service.get_wait_list()[index]
 
-            self.booking_service.book(slot_booking[0], 4, slot_booking[1].customer_number, alternatives)
+            self.booking_service.book(slot_booking[0], slot_booking[1].pax, slot_booking[1].customer_number, alternatives)
             self.booking_service.remove_from_wait_list(index)
             return [
                 {
                     "action": "talk",
                     "voiceName": "Russell",
-                    "text": "Stupendous, you booking for " + str(slot_booking[0]) + " pm has been confirmed, " \
+                    "text": "Stupendous, you booking for " + str(self.booking_service.slot_to_hour(slot_booking[0])) + " hours has been confirmed, " \
                             "we look forward to seeing you soon" + NCCOServer.SIGN_OFF
                 }
             ]
@@ -279,8 +272,7 @@ class NCCOServer:
                 {
                     "action": "talk",
                     "voiceName": "Russell",
-                    "text": "We have now successfully removed you from the waiting list, " \
-                            "but we hope to see you soon, thanks you good bye",
+                    "text": "Got it! I'll call if something else gets free",
                 }
             ]
 

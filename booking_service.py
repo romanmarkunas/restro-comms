@@ -24,7 +24,7 @@ class BookingService():
             self.tables.book(slot, initial_booking)
             return True
         else:
-            alt = self.__generate_alternatives(slot, initial_booking)
+            alt = self.generate_alternatives(slot, initial_booking)
             self.__copy_list(alt, alternatives)
             return False
 
@@ -78,7 +78,10 @@ class BookingService():
     def remove_from_wait_list(self, index):
         self.wait_list.remove(index)
 
-    def __generate_alternatives(self, slot, booking):
+    def get_booking(self, pax, lvn):
+        return Booking(customer_number=lvn, pax=pax)
+
+    def generate_alternatives(self, slot, booking):
         current_pax = booking.pax
         alternatives = []
 
