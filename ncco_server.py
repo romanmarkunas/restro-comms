@@ -42,7 +42,7 @@ class NCCOServer:
         lvn = request.params['from']
         number_insight_json = NCCOHelper.get_call_info(lvn)
         caller_name = number_insight_json.get("caller_name", "")
-        call = Call(user_lvn=lvn, state=CallState.CHOOSE_ACTION, is_mobile=number_insight_json["original_carrier"] == "mobile")
+        call = Call(user_lvn=lvn, state=CallState.CHOOSE_ACTION, is_mobile=number_insight_json["original_carrier"]['network_type'] == "mobile")
         self.calls[request.params['conversation_uuid']] = call
         return NccoBuilder().customer_call_greeting(caller_name).with_input(
             self.domain + NCCOServer.NCCO_INPUT
@@ -155,7 +155,7 @@ class NCCOServer:
 
     def __cancel_and_reschedule_triggered(self, customer_number, slot, uuid):
         number_insight_json = NCCOHelper.get_call_info(customer_number)
-        if number_insight_json["original_carrier"] == "mobile":
+        if number_insight_json["original_carrier"]['network_type'] == "mobile":
             NCCOHelper.send_sms(customer_number, "Your booking for " + str(self.booking_service.slot_to_hour(int(slot))) + " has been cancelled.")
         Thread(target=self.call_waiting_customers(self.booking_service.slot_to_hour(slot))).start()
         call = self.calls[uuid]
@@ -229,12 +229,18 @@ class NCCOServer:
 
     @hug.object.get(WAITING_START)
     def start_waiting_call(self, request=None, slot=None, pax=None):
-
+        lvn = request.params['from']
+        number_insight_json = NCCOHelper.get_call_info(lvn)
+        caller_name = number_insight_json.get("caller_name", "")
+        call = Call(user_lvn=lvn, state=CallState.CHOOSE_ACTION, is_mobile=number_insight_json["original_carrier"]['network_type']  == "mobile")
+        call.save_var("slot", slot)
+        call.save_var("pax", pax)
+        self.calls[request.params['conversation_uuid']] = call
         return [
             {
                 "action": "talk",
                 "voiceName": "Russell",
-                "text": "Hi there it's Two Tables, a booking slot " \
+                "text": "Hi " + caller_name + " it's Two Tables, a booking slot " \
                         "for " + str(pax) + " people at " + str(self.booking_service.slot_to_hour(int(slot))) + " hours has become free, " \
                         "press 1 to accept or 2 to pass",
                 "bargeIn": True
@@ -249,6 +255,8 @@ class NCCOServer:
     def waiting_call_input_response(self, body=None):
         dtmf = body["dtmf"]
         uuid = body["uuid"]
+
+        call = self.calls[body['conversation_uuid']]
 
         customer_number = self.uuid_to_lvn[uuid]
         self.uuid_to_lvn.pop(uuid, "")
@@ -265,13 +273,13 @@ class NCCOServer:
 
             slot_booking = self.booking_service.get_wait_list()[index]
 
-            self.booking_service.book(slot_booking[0], slot_booking[1].pax, slot_booking[1].customer_number, alternatives)
+            self.booking_service.book(call.get_var("slot"), call.get_var("pax"), slot_booking[1].customer_number, alternatives)
             self.booking_service.remove_from_wait_list(index)
             return [
                 {
                     "action": "talk",
                     "voiceName": "Russell",
-                    "text": "Stupendous, you booking for " + str(self.booking_service.slot_to_hour(slot_booking[0])) + " hours has been confirmed, " \
+                    "text": "Stupendous, you booking for " + str(self.booking_service.slot_to_hour(call.get_var("slot"))) + " hours has been confirmed, " \
                             "we look forward to seeing you soon" + NCCOServer.SIGN_OFF
                 }
             ]
