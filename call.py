@@ -100,14 +100,14 @@ class NccoBuilder:
             "slot becomes available. Bye!",  # TODO - better propose other time
             barge_in=False
         ))
-        return
+        return self
 
     def alternative(self, hour, alternative_hour, pax):
         self.ncco.append(NccoBuilder.__talk(
             "I'm sorry, but " + hour + " hours is currently full. Best "
             "alternative I can provide is table for " + pax + " people "
-            "at " + alternative_hour + "00 hours. Press 1 to confirm, 2 to "
-            "join wait list ot 0 to speak to manager"
+            "at " + alternative_hour + " hours. Press 1 to confirm, 2 to "
+            "join wait list or 0 to speak with manager"
         ))
         return self
 
