@@ -157,7 +157,7 @@ class NCCOServer:
         number_insight_json = NCCOHelper.get_call_info(customer_number)
         if number_insight_json["original_carrier"] == "mobile":
             NCCOHelper.send_sms(customer_number, "Your booking for " + str(self.booking_service.slot_to_hour(int(slot))) + " has been cancelled.")
-        Thread(target=self.call_waiting_customers(slot)).start()
+        Thread(target=self.call_waiting_customers(self.booking_service.slot_to_hour(slot))).start()
         call = self.calls[uuid]
         call.set_state(CallState.BOOKING_ASK_TIME)
         return NccoBuilder().cancel_and_reschedule(str(slot)).with_input(

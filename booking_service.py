@@ -40,7 +40,7 @@ class BookingService():
         return self.slot_to_hour(booking_tuple[0]), booking_tuple[1]
 
     def put_to_wait(self, hour, pax, customer_number):
-        slot = hour
+        slot = self.hour_to_slot(hour)
         booking = Booking(customer_number, pax)
         slot_booking = (slot, booking)
         self.wait_list.put((slot, booking))
