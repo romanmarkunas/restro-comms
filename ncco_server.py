@@ -117,6 +117,7 @@ class NCCOServer:
                 ).build()
         elif call.get_state() == CallState.BOOKING_CONFIRM_ALTERNATIVE:
             booking_time = call.get_var('hour')
+            print("xxxxxxx" + str(booking_time))
             pax = int(call.get_var('pax'))
             customer_number = call.get_lvn()
             if dtmf == "1":
