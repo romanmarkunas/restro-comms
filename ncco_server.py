@@ -156,7 +156,7 @@ class NCCOServer:
     def __cancel_and_reschedule_triggered(self, customer_number, slot, uuid):
         number_insight_json = NCCOHelper.get_call_info(customer_number)
         if number_insight_json["original_carrier"] == "mobile":
-            NCCOHelper.send_sms(customer_number, "Your booking for " + str(self.booking_service.slot_to_hour(slot)) + " has been cancelled.")
+            NCCOHelper.send_sms(customer_number, "Your booking for " + str(self.booking_service.slot_to_hour(int(slot))) + " has been cancelled.")
         Thread(target=self.call_waiting_customers(self.booking_service.slot_to_hour(slot))).start()
         call = self.calls[uuid]
         call.set_state(CallState.BOOKING_ASK_TIME)
@@ -173,7 +173,7 @@ class NCCOServer:
         print(str(number_insight_json["original_carrier"]['network_type']))
         if number_insight_json["original_carrier"]['network_type'] == "mobile":
             print("Sending cancel SMS")
-            NCCOHelper.send_sms(customer_number, "Your booking for " + str(self.booking_service.slot_to_hour(slot)) + " has been cancelled.")
+            NCCOHelper.send_sms(customer_number, "Your booking for " + str(self.booking_service.slot_to_hour(int(slot))) + ":00 has been cancelled.")
         Thread(target=self.call_waiting_customers, args=(slot, )).start()
         self.calls.pop(uuid, None)
         return NccoBuilder().cancel(str(slot)).build()
@@ -235,7 +235,7 @@ class NCCOServer:
                 "action": "talk",
                 "voiceName": "Russell",
                 "text": "Hi there it's Two Tables, a booking slot " \
-                        "for " + str(pax) + " people at " + str(self.booking_service.slot_to_hour(slot)) + " hours has become free, " \
+                        "for " + str(pax) + " people at " + str(self.booking_service.slot_to_hour(int(slot))) + " hours has become free, " \
                         "press 1 to accept or 2 to pass",
                 "bargeIn": True
             },
