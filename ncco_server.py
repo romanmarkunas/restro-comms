@@ -92,15 +92,46 @@ class NCCOServer:
             customer_number = call.get_lvn()
             alternatives = []
             result = self.booking_service.book(hour=booking_time, pax=pax, alternatives=alternatives, customer_number=customer_number)
-            del self.calls[uuid]
 
             if result:
                 if call.get_is_mobile:
                     NCCOHelper.send_sms(call.get_lvn(), "You booking for " + str(booking_time) + ":00 has been confirmed.")
-                return NccoBuilder().book(str(self.booking_service.hour_to_slot(booking_time))).build()
-            else:
+                return NccoBuilder().book(str(booking_time)).build()
+            elif not alternatives:
                 self.booking_service.put_to_wait(hour=booking_time, pax=pax, customer_number=customer_number)
-                return NccoBuilder().wait(str(self.booking_service.hour_to_slot(booking_time))).build()
+                return NccoBuilder().wait(str(booking_time)).build()
+            else:
+                call.set_state(CallState.BOOKING_CONFIRM_ALTERNATIVE)
+                call.save_var('alternative', alternatives[0])
+                call.save_var('pax', pax)
+                call.save_var('hour', booking_time)
+                return NccoBuilder().alternative(
+                    hour=str(booking_time),
+                    alternative_hour=str(self.booking_service.slot_to_hour(alternatives[0][0])),
+                    pax=str(alternatives[0][1].pax)
+                ).with_input(
+                    self.domain + NCCOServer.NCCO_INPUT,
+                    extra_params={
+                        "timeOut": 7
+                    }
+                ).build()
+        elif call.get_state() == CallState.BOOKING_CONFIRM_ALTERNATIVE:
+            booking_time = call.get_var('hour')
+            pax = int(call.get_var('pax'))
+            customer_number = call.get_lvn()
+            if dtmf == "1":
+                self.booking_service.book(
+                    hour=int(self.booking_service.slot_to_hour(call.get_var('alternative')[0])),
+                    pax=int(call.get_var('alternative')[1].pax),
+                    alternatives=[],
+                    customer_number=customer_number
+                )
+                if call.get_is_mobile:
+                    NCCOHelper.send_sms(call.get_lvn(), "You booking for " + str(booking_time) + ":00 has been confirmed.")
+                return NccoBuilder().book(str(booking_time)).build()
+            if dtmf == "2":
+                self.booking_service.put_to_wait(hour=booking_time, pax=pax, customer_number=customer_number)
+                return NccoBuilder().wait(str(booking_time)).build()
 
     def __do_cancel(self, customer_number, uuid):
         cancellable_results = self.booking_service.find_bookings(customer_number)
