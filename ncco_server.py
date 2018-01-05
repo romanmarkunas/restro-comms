@@ -130,7 +130,7 @@ class NCCOServer:
                     NCCOHelper.send_sms(call.get_lvn(), "You booking for " + str(booking_time) + ":00 has been confirmed.")
                 return NccoBuilder().book(str(booking_time)).build()
             if dtmf == "2":
-                self.booking_service.put_to_wait(hour=self.booking_service.hour_to_slot(booking_time), pax=pax, customer_number=customer_number)
+                self.booking_service.put_to_wait(hour=booking_time, pax=pax, customer_number=customer_number)
                 return NccoBuilder().wait(str(booking_time)).build()
 
     def __do_cancel(self, customer_number, uuid):

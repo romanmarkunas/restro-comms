@@ -85,7 +85,7 @@ class BookingService():
         current_pax = booking.pax
         alternatives = []
 
-        while (not alternatives) and (current_pax > 0):
+        while ((not alternatives) and (current_pax > 0)):
             for alt_slot in range(max(0, slot - 1), min(slot + 2, 12)):
                 alt_booking = Booking(booking.customer_number, current_pax)
                 alternatives.append((alt_slot, alt_booking))
