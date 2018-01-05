@@ -277,7 +277,6 @@ class NCCOServer:
             ]
 
         elif dtmf == "2":
-            self.booking_service.remove_from_wait_list(index)
             return [
                 {
                     "action": "talk",
