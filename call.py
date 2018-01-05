@@ -147,7 +147,7 @@ class NccoBuilder:
         ncco = {
             "action": "input",
             "eventUrl": [loc],
-            "timeOut": 4
+            "timeOut": 3
         }
 
         if extra_params is not None:
