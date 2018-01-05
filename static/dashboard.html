@@ -12,9 +12,8 @@
 
   <body>
   <div class="card text-center">
-    <h5 class="card-header">Two Tables</h5>
     <div class="card-body">
-      <h5 class="card-title">Table reservation chart</h5>
+      <p class="card-title">Table reservation chart</p>
       <table class="table" id="reservation-chart" border="1"></table>
       <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
       <script>
@@ -49,8 +48,8 @@
 
             for (var j = 0; j < json[i].length; j++) {
               var col = document.createElement("td");
-              addText(col, "PAX: " + json[i][j]["pax"]);
-              addText(col, "LVN: " + json[i][j]["lvn"]);
+              addText(col, "PAX: " + json[i][j]["pax"] + "LVN: " + json[i][j]["lvn"] + " ");
+              <!--addText(col, "LVN: " + json[i][j]["lvn"]);-->
               col.appendChild(createRemindButton(json[i][j]["id"]));
               row.appendChild(col);
             }
@@ -61,15 +60,15 @@
 
         function addText(el, text) {
           el.appendChild(document.createTextNode(text));
-          el.appendChild(document.createElement("br"));
+          <!--el.appendChild(document.createElement("br"));-->
         }
 
         function createRemindButton(bookingId) {
           var button = document.createElement("button");
           if (bookingId == undefined){
-            button.className = "btn btn-default disabled";
+            button.className = "btn btn-default disabled btn-sm";
           } else {
-            button.className = "btn btn-success";
+            button.className = "btn btn-success btn-sm";
             colors = getColors()
             button.style.background = colors[parseInt(bookingId) % colors.length]
           }
@@ -100,7 +99,7 @@
     </div>
   <div class="card text-center">
     <div class="card-body">
-      <h5 class="card-title">Wait list chart</h5>
+      <p class="card-title">Wait list chart</p>
       <table class="table" id="wait-list-chart" border="1"></table>
       <script>
         function updateWaitListTable() {
