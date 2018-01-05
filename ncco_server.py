@@ -170,10 +170,11 @@ class NCCOServer:
     def __cancel_triggered(self, customer_number, slot, uuid):
         number_insight_json = NCCOHelper.get_call_info(customer_number)
         print(str(number_insight_json))
-        print(str(number_insight_json["original_carrier"]))
+        print(str(number_insight_json["original_carrier"]['network_type']))
         if number_insight_json["original_carrier"]['network_type'] == "mobile":
+            print("Sending cancel SMS")
             NCCOHelper.send_sms(customer_number, "Your booking for " + str(self.booking_service.slot_to_hour(slot)) + " has been cancelled.")
-        Thread(target=self.call_waiting_customers, args=(self.booking_service.slot_to_hour(slot), )).start()
+        Thread(target=self.call_waiting_customers, args=(slot, )).start()
         self.calls.pop(uuid, None)
         return NccoBuilder().cancel(str(slot)).build()
 
@@ -337,7 +338,7 @@ class NCCOServer:
             return self.__cancel_triggered(
                 customer_number=booking[1].customer_number,
                 uuid=uuid,
-                slot=int(booking[0])
+                slot=int(self.booking_service.hour_to_slot(booking[0]))
             )
         else:
             return self.remind_start_ncco(uuid)
