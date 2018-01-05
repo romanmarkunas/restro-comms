@@ -230,18 +230,20 @@ class NCCOServer:
     @hug.object.get(WAITING_START)
     def start_waiting_call(self, request=None, slot=None, pax=None):
         lvn = request.params['from']
-        number_insight_json = NCCOHelper.get_call_info(lvn)
-        caller_name = number_insight_json.get("caller_name", "")
-        call = Call(user_lvn=lvn, state=CallState.CHOOSE_ACTION, is_mobile=number_insight_json["original_carrier"]['network_type']  == "mobile")
+        # number_insight_json = NCCOHelper.get_call_info(lvn)
+        # caller_name = number_insight_json.get("caller_name", "")
+        call = Call(user_lvn=lvn, state=CallState.CHOOSE_ACTION)
         call.save_var("slot", slot)
         call.save_var("pax", pax)
         self.calls[request.params['conversation_uuid']] = call
+        print("we made it!")
+        print(str(call))
         return [
             {
                 "action": "talk",
                 "voiceName": "Russell",
-                "text": "Hi " + caller_name + " it's Two Tables, a booking slot " \
-                        "for " + str(pax) + " people at " + str(self.booking_service.slot_to_hour(int(slot))) + " hours has become free, " \
+                "text": "Hi it's Two Tables, a booking slot "
+                        "for " + str(pax) + " people at " + str(self.booking_service.slot_to_hour(int(slot))) + " hours has become free, "
                         "press 1 to accept or 2 to pass",
                 "bargeIn": True
             },
