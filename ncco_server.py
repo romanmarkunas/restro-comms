@@ -157,7 +157,7 @@ class NCCOServer:
         number_insight_json = NCCOHelper.get_call_info(customer_number)
         if number_insight_json["original_carrier"]['network_type'] == "mobile":
             NCCOHelper.send_sms(customer_number, "Your booking for " + str(self.booking_service.slot_to_hour(int(slot))) + " has been cancelled.")
-        Thread(target=self.call_waiting_customers(self.booking_service.slot_to_hour(slot))).start()
+        Thread(target=self.call_waiting_customers, args=self.booking_service.slot_to_hour(slot)).start()
         call = self.calls[uuid]
         call.set_state(CallState.BOOKING_ASK_TIME)
         return NccoBuilder().cancel_and_reschedule(str(slot)).with_input(
@@ -174,7 +174,7 @@ class NCCOServer:
         if number_insight_json["original_carrier"]['network_type'] == "mobile":
             print("Sending cancel SMS")
             NCCOHelper.send_sms(customer_number, "Your booking for " + str(self.booking_service.slot_to_hour(int(slot))) + ":00 has been cancelled.")
-        Thread(target=self.call_waiting_customers, args=(slot, )).start()
+        Thread(target=self.call_waiting_customers, args=slot).start()
         self.calls.pop(uuid, None)
         return NccoBuilder().cancel(str(slot)).build()
 
